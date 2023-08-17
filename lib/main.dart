@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _riddle = result.riddle;
     _guessed = false;
     print(_randomNumber);
+    print(_riddle);
     setState(() {});
   }
 

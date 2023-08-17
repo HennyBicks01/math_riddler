@@ -125,11 +125,14 @@ class RiddleGenerator {
       _onesCondition
     ];
     conditionMethods.shuffle();
-    List<String> selectedConditions = conditionMethods.sublist(0, 2).expand((method) => method(digits)).toList();
+
+    // Get the riddle conditions from the first two shuffled methods
+    List<String> firstCondition = conditionMethods[0](digits);
+    List<String> secondCondition = conditionMethods[1](digits);
 
     String riddleText = 'I am a three-digit number. ' +
-        _randomChoice(selectedConditions) +
-        _randomChoice(selectedConditions) + // Ensure different condition is selected
+        _randomChoice(firstCondition) +
+        _randomChoice(secondCondition) +
         _randomChoice(_generalCondition(digits));
 
     return RiddleResult(number: number, riddle: riddleText);
