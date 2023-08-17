@@ -51,12 +51,17 @@ class RiddleGenerator {
     if (first == second) {
       conditions.add("My $firstDigit and $secondDigit digits are the same, ");
     } else {
-      if (first == 2 * second) {
-        conditions.add("My $firstDigit digit is twice my $secondDigit digit, ");
+      for (int i = 2; i <= 4; i++) {
+        if (first == i * second) {
+          conditions.add("My $firstDigit digit is $i times my $secondDigit digit, ");
+          conditions.add("My $firstDigit digit divided by my $secondDigit digit is $i, ");
+        }
+        if (second == i * first) {
+          conditions.add("My $secondDigit digit is $i times my $firstDigit digit, ");
+          conditions.add("My $secondDigit digit divided by my $firstDigit digit is $i, ");
+        }
       }
-      if (second == 2 * first) {
-        conditions.add("My $secondDigit digit is twice my $firstDigit digit, ");
-      }
+
       if (difference > 0) {
         conditions.add("My $firstDigit digit is $difference more than my $secondDigit digit, ");
       } else if (difference < 0) {
@@ -67,16 +72,6 @@ class RiddleGenerator {
     return conditions;
   }
 
-  void getRandomConditions(List<int> digits) {
-    var random = Random();
-    var digitNames = ['hundreds', 'tens', 'ones'];
-    digitNames.shuffle(random);
-
-    var randomConditions = digitCondition(digits, digitNames[0], digitNames[1]);
-    for (var condition in randomConditions) {
-      print(condition);
-    }
-  }
 
   List<String> _generalCondition(List<int> digits) {
     int hundreds = digits[0];
@@ -128,10 +123,11 @@ class RiddleGenerator {
     List<String> firstCondition = digitCondition(digits, conditionPairs[0][0], conditionPairs[0][1]);
     List<String> secondCondition = digitCondition(digits, conditionPairs[1][0], conditionPairs[1][1]);
 
-    String riddleText = 'I am a three-digit number. ' +
-        _randomChoice(firstCondition) +
-        _randomChoice(secondCondition) +
-        _randomChoice(_generalCondition(digits));
+    String riddleText = 'I am a three-digit number. '
+        '${_randomChoice(firstCondition)}'
+        '${_randomChoice(secondCondition)}'
+        '${_randomChoice(_generalCondition(digits))}';
+
 
     return RiddleResult(number: number, riddle: riddleText);
   }
