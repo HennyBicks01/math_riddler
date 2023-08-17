@@ -17,79 +17,65 @@ class RiddleGenerator {
     return [hundreds, tens, ones];
   }
 
-  List<String> _hundredsCondition(List<int> digits) {
-    int hundreds = digits[0];
-    int tens = digits[1];
-    int difference = hundreds - tens;
+  List<String> digitCondition(List<int> digits, String firstDigit, String secondDigit) {
+    int first = 0;
+    int second = 0;
+
+    switch (firstDigit) {
+      case 'hundreds':
+        first = digits[0];
+        break;
+      case 'tens':
+        first = digits[1];
+        break;
+      case 'ones':
+        first = digits[2];
+        break;
+    }
+
+    switch (secondDigit) {
+      case 'hundreds':
+        second = digits[0];
+        break;
+      case 'tens':
+        second = digits[1];
+        break;
+      case 'ones':
+        second = digits[2];
+        break;
+    }
+
+    int difference = first - second;
     List<String> conditions = [];
 
-    if (hundreds == tens) {
-      conditions.add("My hundreds and tens digits are the same, ");
+    if (first == second) {
+      conditions.add("My $firstDigit and $secondDigit digits are the same, ");
     } else {
-      if (hundreds == 2 * tens) {
-        conditions.add("My hundreds digit is twice my tens digit, ");
+      if (first == 2 * second) {
+        conditions.add("My $firstDigit digit is twice my $secondDigit digit, ");
       }
-      if (tens == 2 * hundreds) {
-        conditions.add("My tens digit is twice my hundreds digit, ");
+      if (second == 2 * first) {
+        conditions.add("My $secondDigit digit is twice my $firstDigit digit, ");
       }
       if (difference > 0) {
-        conditions.add("My hundreds digit is $difference more than my tens digit, ");
+        conditions.add("My $firstDigit digit is $difference more than my $secondDigit digit, ");
       } else if (difference < 0) {
-        conditions.add("My hundreds digit is ${-difference} less than my tens digit, ");
+        conditions.add("My $firstDigit digit is ${-difference} less than my $secondDigit digit, ");
       }
     }
 
     return conditions;
   }
 
-  List<String> _tensCondition(List<int> digits) {
-    int tens = digits[1];
-    int ones = digits[2];
-    int difference = tens - ones;
-    List<String> conditions = [];
+  void getRandomConditions(List<int> digits) {
+    var random = Random();
+    var digitNames = ['hundreds', 'tens', 'ones'];
+    digitNames.shuffle(random);
 
-    if (tens == ones) {
-      conditions.add("and my tens and ones digits are the same, ");
-    } else {
-      if (tens == 2 * ones) {
-        conditions.add("My tens digit is twice my ones digit, ");
-      }
-      if (ones == 2 * tens) {
-        conditions.add("My ones digit is twice my tens digit, ");
-      }
-      if (difference > 0) {
-        conditions.add("My tens digit is $difference more than my ones digit, ");
-      } else if (difference < 0) {
-        conditions.add("My tens digit is ${-difference} less than my ones digit, ");
-      }
+    var randomConditions = digitCondition(digits, digitNames[0], digitNames[1]);
+    for (var condition in randomConditions) {
+      print(condition);
     }
-
-    return conditions;
-  }
-
-  List<String> _onesCondition(List<int> digits) {
-    int hundreds = digits[0];
-    int ones = digits[2];
-    int difference = hundreds - ones;
-    List<String> conditions = [];
-
-    if (hundreds == ones) {
-      conditions.add("My hundreds and ones digits are the same, ");
-    } else {
-      if (hundreds == 2 * ones) {
-        conditions.add("My hundreds digit is twice my ones digit, ");
-      }
-      if (ones == 2 * hundreds) {
-        conditions.add("My ones digit is twice my hundreds digit, ");
-      }
-      if (difference > 0) {
-        conditions.add("My hundreds digit is $difference more than my ones digit, ");
-      } else if (difference < 0) {
-        conditions.add("My hundreds digit is ${-difference} less than my ones digit, ");
-      }
-    }
-
-    return conditions;
   }
 
   List<String> _generalCondition(List<int> digits) {
@@ -130,17 +116,17 @@ class RiddleGenerator {
     List<int> digits = _generateNumber();
     int number = digits[0] * 100 + digits[1] * 10 + digits[2];
 
-    // Randomly select two comparative conditions
-    List<List<String> Function(List<int>)> conditionMethods = [
-      _hundredsCondition,
-      _tensCondition,
-      _onesCondition
+    // Define the pairs for comparative conditions
+    List<List<String>> conditionPairs = [
+      ['hundreds', 'tens'],
+      ['tens', 'ones'],
+      ['hundreds', 'ones']
     ];
-    conditionMethods.shuffle();
+    conditionPairs.shuffle();
 
-    // Get the riddle conditions from the first two shuffled methods
-    List<String> firstCondition = conditionMethods[0](digits);
-    List<String> secondCondition = conditionMethods[1](digits);
+    // Get the riddle conditions from the first two shuffled pairs
+    List<String> firstCondition = digitCondition(digits, conditionPairs[0][0], conditionPairs[0][1]);
+    List<String> secondCondition = digitCondition(digits, conditionPairs[1][0], conditionPairs[1][1]);
 
     String riddleText = 'I am a three-digit number. ' +
         _randomChoice(firstCondition) +
@@ -149,6 +135,7 @@ class RiddleGenerator {
 
     return RiddleResult(number: number, riddle: riddleText);
   }
+
 
   String _randomChoice(List<String> options) {
     return options[_random.nextInt(options.length)];
