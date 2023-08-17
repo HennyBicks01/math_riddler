@@ -30,7 +30,7 @@ class RiddleGenerator {
         conditions.add("My hundreds digit is twice my tens digit, ");
       }
       if (tens == 2 * hundreds) {
-        conditions.add("My hundreds digit is half my tens digit, ");
+        conditions.add("My tens digit is twice my hundreds digit, ");
       }
       if (difference > 0) {
         conditions.add("My hundreds digit is $difference more than my tens digit, ");
@@ -49,18 +49,18 @@ class RiddleGenerator {
     List<String> conditions = [];
 
     if (tens == ones) {
-      conditions.add("and my tens and ones digits are the same. ");
+      conditions.add("and my tens and ones digits are the same, ");
     } else {
       if (tens == 2 * ones) {
-        conditions.add("and my tens digit is twice my ones digit. ");
+        conditions.add("My tens digit is twice my ones digit, ");
       }
       if (ones == 2 * tens) {
-        conditions.add("and my tens digit is half my ones digit. ");
+        conditions.add("My ones digit is twice my tens digit, ");
       }
       if (difference > 0) {
-        conditions.add("and my tens digit is $difference more than my ones digit. ");
+        conditions.add("My tens digit is $difference more than my ones digit, ");
       } else if (difference < 0) {
-        conditions.add("and my tens digit is ${-difference} less than my ones digit. ");
+        conditions.add("My tens digit is ${-difference} less than my ones digit, ");
       }
     }
 
@@ -80,7 +80,7 @@ class RiddleGenerator {
         conditions.add("My hundreds digit is twice my ones digit, ");
       }
       if (ones == 2 * hundreds) {
-        conditions.add("My hundreds digit is half my ones digit, ");
+        conditions.add("My ones digit is twice my hundreds digit, ");
       }
       if (difference > 0) {
         conditions.add("My hundreds digit is $difference more than my ones digit, ");
@@ -106,6 +106,18 @@ class RiddleGenerator {
     }
     if (tens * ones == hundreds * hundreds) {
       conditions.add("The product of my tens and ones digits equals the square of my hundreds digit.");
+    }
+    if ((tens + hundreds) != 0 && ones % (tens + hundreds) == 0) {
+      int result = ones ~/ (tens + hundreds);
+      conditions.add("My ones digit divided by the sum of my hundreds and tens digits gives $result.");
+    }
+    if ((hundreds + ones) != 0 && tens % (hundreds + ones) == 0) {
+      int result = tens ~/ (hundreds + ones);
+      conditions.add("My tens digit divided by the sum of my hundreds and ones digits gives $result.");
+    }
+    if ((tens + ones) != 0 && hundreds % (tens + ones) == 0) {
+      int result = hundreds ~/ (tens + ones);
+      conditions.add("My hundreds digit divided by the sum of my tens and ones digits gives $result.");
     }
     conditions.add("The sum of my digits is ${hundreds + tens + ones}.");
     conditions.add("The product of all my digits is ${hundreds * tens * ones}.");
