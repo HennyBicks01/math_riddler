@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _randomNumber = result.number;
     _riddle = result.riddle;
     _guessed = false;
-    print(_riddle);
+    print(_randomNumber);
     setState(() {});
   }
 
