@@ -10,6 +10,8 @@ class RiddleResult {
 class RiddleGenerator {
   final Random _random = Random();
 
+  Set<String> processedCombinations = {};
+
   List<int> _generateNumber() {
     int hundreds = _random.nextInt(9) + 1;
     int tens = _random.nextInt(10);
@@ -45,6 +47,28 @@ class RiddleGenerator {
         break;
     }
 
+    // Finding the excluded digit
+    List<String> allDigits = ['hundreds', 'tens', 'ones'];
+    allDigits.remove(firstDigit);
+    allDigits.remove(secondDigit);
+    String excludedDigit = allDigits[0];
+
+    // Constructing the resulting two-digit number
+    int resultingNumber;
+    if (firstDigit == 'hundreds' || secondDigit == 'hundreds') {
+      resultingNumber = first * 10 + second;
+    } else {
+      resultingNumber = first * 10 + second;
+    }
+
+    // Calculate the number of factors
+    int factors = 0;
+    for (int i = 1; i <= resultingNumber; i++) {
+      if (resultingNumber % i == 0) {
+        factors++;
+      }
+    }
+
     int difference = first - second;
     List<String> conditions = [];
 
@@ -62,11 +86,25 @@ class RiddleGenerator {
         }
       }
 
+      String combinationKey = "$first-$second";
+
+      if (!processedCombinations.contains(combinationKey)&& (pow(first, second)).toString().length != (pow(second, first)).toString().length) {
+        int powerLengthFirst = (pow(first, second)).toString().length;
+        conditions.add("My $firstDigit digit to the power of my $secondDigit digit results in a number with $powerLengthFirst characters, ");
+
+        int powerLengthSecond = (pow(second, first)).toString().length;
+        conditions.add("My $secondDigit digit to the power of my $firstDigit digit results in a number with $powerLengthSecond characters, ");
+
+        processedCombinations.add(combinationKey);  // Mark this combination as processed
+      }
+
       if (difference > 0) {
         conditions.add("My $firstDigit digit is $difference more than my $secondDigit digit, ");
       } else if (difference < 0) {
         conditions.add("My $firstDigit digit is ${-difference} less than my $secondDigit digit, ");
       }
+
+      conditions.add("Excluding my $excludedDigit digit, my number has $factors factors, ");
     }
 
     return conditions;
@@ -74,34 +112,45 @@ class RiddleGenerator {
 
 
   List<String> _generalCondition(List<int> digits) {
-    int hundreds = digits[0];
-    int tens = digits[1];
-    int ones = digits[2];
     List<String> conditions = [];
+    List<String> digitNames = ['hundreds', 'tens', 'ones'];
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        int k = 3 - i - j;
+        if (i != j) {
+          // Product of two digits equals the square of the third
+          if (digits[i] * digits[j] == digits[k] * digits[k]) {
+            conditions.add(
+                "The product of my ${digitNames[i]} and ${digitNames[j]} digits equals the square of my ${digitNames[k]} digit.");
+          }
 
-    if (hundreds * tens == ones * ones) {
-      conditions.add("The product of my hundreds and tens digits equals the square of my ones digit.");
+          // One digit is divisible by the sum of the other two
+          if ((digits[i] + digits[j]) != 0 && digits[k] != 0 &&
+              digits[k] % (digits[i] + digits[j]) == 0) {
+            int result = digits[k] ~/ (digits[i] + digits[j]);
+            conditions.add(
+                "My ${digitNames[k]} digit divided by the sum of my ${digitNames[i]} and ${digitNames[j]} digits gives $result.");
+          }
+
+          // Pythagorean triple condition
+          if (digits[i] * digits[i] + digits[j] * digits[j] ==
+              digits[k] * digits[k] && !conditions.contains(
+              "My digits would make a perfect right triangle.")) {
+            conditions.add("My digits would make a perfect right triangle.");
+          }
+
+          // Combining two digits and dividing by the third results in an integer
+          int combinedNumber = int.parse('${digits[i]}${digits[j]}');
+          if (digits[k] != 0 && digits[k] > 2 && combinedNumber % digits[k] == 0) {
+            int result = combinedNumber ~/ digits[k];
+            conditions.add("Connecting my ${digitNames[i]} and ${digitNames[j]} digits and dividing by my ${digitNames[k]} digit gives $result.");
+          }
+        }
+      }
     }
-    if (hundreds * ones == tens * tens) {
-      conditions.add("The product of my hundreds and ones digits equals the square of my tens digit.");
-    }
-    if (tens * ones == hundreds * hundreds) {
-      conditions.add("The product of my tens and ones digits equals the square of my hundreds digit.");
-    }
-    if ((tens + hundreds) != 0 && ones % (tens + hundreds) == 0) {
-      int result = ones ~/ (tens + hundreds);
-      conditions.add("My ones digit divided by the sum of my hundreds and tens digits gives $result.");
-    }
-    if ((hundreds + ones) != 0 && tens % (hundreds + ones) == 0) {
-      int result = tens ~/ (hundreds + ones);
-      conditions.add("My tens digit divided by the sum of my hundreds and ones digits gives $result.");
-    }
-    if ((tens + ones) != 0 && hundreds % (tens + ones) == 0) {
-      int result = hundreds ~/ (tens + ones);
-      conditions.add("My hundreds digit divided by the sum of my tens and ones digits gives $result.");
-    }
-    conditions.add("The sum of my digits is ${hundreds + tens + ones}.");
-    conditions.add("The product of all my digits is ${hundreds * tens * ones}.");
+
+    conditions.add("The sum of my digits is ${digits[0] + digits[1] + digits[2]}.");
+    conditions.add("The product of all my digits is ${digits[0] * digits[1] * digits[2]}.");
 
     return conditions;
   }
