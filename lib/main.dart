@@ -36,9 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
   late String _riddle;
   int _eloScore = 1200;
   int _riddlesSolved = 0;
-  final _controller = TextEditingController();
   bool _guessed = false;
   Color _backgroundColor = Colors.white; // The default background color.
+
 
   @override
   void initState() {
@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _checkAnswer() {
-    if (_controller.text == _randomNumber.toString()) {
+    if (_currentInput == _randomNumber.toString()) {
       _flashBackground(Colors.green);
       _eloScore += 15;
       _riddlesSolved++;
@@ -89,7 +89,9 @@ class _MyHomePageState extends State<MyHomePage> {
       _flashBackground(Colors.red);
       _eloScore -= 15;
     }
-    _controller.clear();
+    setState(() {
+      _currentInput = ""; // This line clears the input after Submit is clicked.
+    });
     _guessed = true;
   }
 
@@ -98,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _backgroundColor = color;
     });
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         _backgroundColor = Colors.white;
       });
@@ -114,85 +116,58 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget buildKey(int index) {
+      switch (index) {
+        case 3:
+        case 7:
+        case 11:
+          return Container(color: Colors
+              .transparent); // Empty transparent containers for the spots where Submit buttons used to be.
+        case 12:
+          return ElevatedButton(
+            onPressed: _removeLastDigit,
+            child: const Text('Back'),
+          );
+        case 13:
+          return ElevatedButton(
+            onPressed: () => _appendToInput('0'),
+            child: const Text('0'),
+          );
+        case 14:
+          return ElevatedButton(
+            onPressed: _clearInput,
+            child: const Text('Clear'),
+          );
+        case 15:
+          return ElevatedButton(
+            onPressed: () {
+              _clearInput();
+              _skipRiddle();
+            },
+            child: const Text('Skip'),
+          );
+        default:
+          return ElevatedButton(
+            onPressed: () =>
+                _appendToInput('${(index % 4) + 1 + (index ~/ 4) * 3}'),
+            child: Text('${(index % 4) + 1 + (index ~/ 4) * 3}'),
+          );
+      }
+    }
+
     return Scaffold(
       body: AnimatedContainer(
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         color: _backgroundColor,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Stack(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '$_riddlesSolved',
-                    style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    _riddle,
-                    style: const TextStyle(fontSize: 23),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    _currentInput,
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: List.generate(10, (index) {
-                      return ElevatedButton(
-                        onPressed: () => _appendToInput(index.toString()),
-                        child: Text('$index'),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _removeLastDigit,
-                        child: const Text('Back'),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: _clearInput,
-                        child: const Text('Clear'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _checkAnswer,
-                        child: const Text('Submit'),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          _clearInput();
-                          _skipRiddle();
-                        },
-                        child: const Text('Skip'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
+              // Elo Score at the top-right corner
+              Align(
+                alignment: Alignment.topRight,
                 child: Container(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(5),
@@ -207,6 +182,68 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
+              // Riddles Solved Counter
+              Text(
+                '$_riddlesSolved',
+                style: const TextStyle(
+                    fontSize: 40, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              // Riddle
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: Text(
+                    _riddle,
+                    style: const TextStyle(fontSize: 23),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _currentInput,
+                style: const TextStyle(
+                    fontSize: 32, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              // This will push the grid (keypad) to the bottom
+              // Keypad
+              Expanded(
+                flex: 2,
+                child: Stack(
+                  children: [
+                    GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        childAspectRatio: 2.0,
+                        mainAxisSpacing: 5,
+                        crossAxisSpacing: 5,
+                      ),
+                      itemCount: 16,
+                      itemBuilder: (context, index) {
+                        return buildKey(index);
+                      },
+                    ),
+                    Positioned(
+                      top: 0, // Starting from the 2nd row, plus the spacing.
+                      left: (MediaQuery.of(context).size.width / 4) * 3 - 20,  // Starting from the 4th column.
+                      child: ElevatedButton(
+                        onPressed: _checkAnswer,
+                        child: const Text('Submit'),
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(
+                            (MediaQuery.of(context).size.width / 4) - 15, // Width of 1 column minus some padding.
+                            .75 * (MediaQuery.of(context).size.height / 4) -3,  // Height of 3 rows minus some padding.
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -214,4 +251,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
