@@ -54,6 +54,14 @@ class RiddleGenerator {
             }
           }
 
+          // Exponential condition
+          int powerResult = pow(digits[i], digits[j]).toInt();
+          int numOfDigits = powerResult.toString().length;
+          bool conditionAlreadyExists = conditions2.any((condition) => condition.contains("$numOfDigits digits"));
+          if (!conditionAlreadyExists) {
+            tempConditions.add("If you raise my ${digitNames[i]} digit to the power of my ${digitNames[j]} digit, the result has $numOfDigits digits.");
+          }
+
           // Randomly add a temp condition to the array
           if (tempConditions.isNotEmpty) {
             int randomIndex = random.nextInt(tempConditions.length);
