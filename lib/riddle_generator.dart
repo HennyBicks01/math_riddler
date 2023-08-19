@@ -123,7 +123,6 @@ class RiddleGenerator {
   }
 
 
-
   RiddleResult generateRiddle() {
     List<int> digits = _generateNumber();
     int number = digits[0] * 100 + digits[1] * 10 + digits[2];
