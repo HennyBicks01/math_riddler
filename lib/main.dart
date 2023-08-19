@@ -117,40 +117,64 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     Widget buildKey(int index) {
+      Color buttonColor;
+      Color textColor = Colors.black;  // Default text color to black for most buttons.
+
       switch (index) {
-        case 3:
-        case 7:
-        case 11:
-          return Container(color: Colors
-              .transparent); // Empty transparent containers for the spots where Submit buttons used to be.
         case 12:
+          buttonColor = Colors.orange;
           return ElevatedButton(
             onPressed: _removeLastDigit,
-            child: const Text('Back'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+            ),
+            child: Text('Back', style: TextStyle(fontSize: 20, color: textColor)),
           );
         case 13:
+          buttonColor = Colors.white;
           return ElevatedButton(
             onPressed: () => _appendToInput('0'),
-            child: const Text('0'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+            ),
+            child: Text('0', style: TextStyle(fontSize: 20, color: textColor)),
           );
         case 14:
+          buttonColor = Colors.orange;
           return ElevatedButton(
             onPressed: _clearInput,
-            child: const Text('Clear'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+            ),
+            child: Text('Clear', style: TextStyle(fontSize: 20, color: textColor)),
           );
         case 15:
+          buttonColor = Colors.red;
+          textColor = Colors.white;  // For red button, white text may be more legible.
           return ElevatedButton(
             onPressed: () {
               _clearInput();
               _skipRiddle();
             },
-            child: const Text('Skip'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+            ),
+            child: Text('Skip', style: TextStyle(fontSize: 20, color: textColor)),
           );
+        case 3:
+        case 7:
+        case 11:
+          return Container(color: Colors.transparent); // Empty transparent containers
         default:
+          buttonColor = Colors.white;
+          textColor = Colors.black;  // Ensuring that number buttons have black text color.
           return ElevatedButton(
             onPressed: () =>
                 _appendToInput('${(index % 4) + 1 + (index ~/ 4) * 3}'),
-            child: Text('${(index % 4) + 1 + (index ~/ 4) * 3}'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: buttonColor,
+            ),
+            child: Text('${(index % 4) + 1 + (index ~/ 4) * 3}', style: TextStyle(fontSize: 20, color: textColor)),
           );
       }
     }
@@ -218,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
-                        childAspectRatio: 2.0,
+                        childAspectRatio: 2,
                         mainAxisSpacing: 5,
                         crossAxisSpacing: 5,
                       ),
@@ -228,17 +252,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                     ),
                     Positioned(
-                      top: 0, // Starting from the 2nd row, plus the spacing.
-                      left: (MediaQuery.of(context).size.width / 4) * 3 - 20,  // Starting from the 4th column.
+                      top: 0,
+                      left: (MediaQuery.of(context).size.width / 4) * 3 - 20,
                       child: ElevatedButton(
                         onPressed: _checkAnswer,
-                        child: const Text('Submit'),
+
                         style: ElevatedButton.styleFrom(
                           fixedSize: Size(
-                            (MediaQuery.of(context).size.width / 4) - 15, // Width of 1 column minus some padding.
-                            .75 * (MediaQuery.of(context).size.height / 4) -3,  // Height of 3 rows minus some padding.
+                            (MediaQuery.of(context).size.width / 4) - 15,
+                            .75 * (MediaQuery.of(context).size.height / 4) -3,
                           ),
+                          backgroundColor: Colors.green,
                         ),
+                        child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
                       ),
                     ),
                   ],
