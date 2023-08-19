@@ -128,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: buttonColor,
             ),
-            child: Text('Back', style: TextStyle(fontSize: 20, color: textColor)),
+            child: Text('<', style: TextStyle(fontSize: 20, color: textColor)),
           );
         case 13:
           buttonColor = Colors.white;
@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: buttonColor,
             ),
-            child: Text('Clear', style: TextStyle(fontSize: 20, color: textColor)),
+            child: Text('C', style: TextStyle(fontSize: 20, color: textColor)),
           );
         case 15:
           buttonColor = Colors.red;
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: buttonColor,
             ),
-            child: Text('Skip', style: TextStyle(fontSize: 20, color: textColor)),
+            child: Text('>>', style: TextStyle(fontSize: 20, color: textColor)),
           );
         case 3:
         case 7:
