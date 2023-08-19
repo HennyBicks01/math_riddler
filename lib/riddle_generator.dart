@@ -33,7 +33,7 @@ class RiddleGenerator {
           // Temporary array
           List<String> tempConditions = [];
 
-          // difference in numbers
+          // +,-,= Functions for two different digits
           int difference = digits[i] - digits[j];
           if (difference > 0) {
             tempConditions.add(
@@ -41,6 +41,9 @@ class RiddleGenerator {
           } else if (difference < 0) {
             tempConditions.add(
                 "My ${digitNames[i]} digit is ${-difference} less than my ${digitNames[j]} digit.");
+          } else if (difference == 0) {
+            tempConditions.add(
+                "My ${digitNames[i]} digit is the same as my ${digitNames[j]} digit.");
           }
 
           // Randomly add a temp condition to the array
@@ -102,6 +105,8 @@ class RiddleGenerator {
 
     return finalConditions;
   }
+
+
 
   RiddleResult generateRiddle() {
     List<int> digits = _generateNumber();
