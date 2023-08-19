@@ -46,6 +46,14 @@ class RiddleGenerator {
                 "My ${digitNames[i]} digit is the same as my ${digitNames[j]} digit.");
           }
 
+          // *,/ Functions for two different digits
+          for (int multiple = 2; multiple <= 4; multiple++) {
+            if (digits[i] == digits[j] * multiple) {
+              tempConditions.add(
+                  "My ${digitNames[i]} digit is $multiple times bigger than my ${digitNames[j]} digit.");
+            }
+          }
+
           // Randomly add a temp condition to the array
           if (tempConditions.isNotEmpty) {
             int randomIndex = random.nextInt(tempConditions.length);
