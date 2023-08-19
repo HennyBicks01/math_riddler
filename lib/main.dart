@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _riddlesSolved = 0;
   final _controller = TextEditingController();
   bool _guessed = false;
+  Color _backgroundColor = Colors.white; // The default background color.
 
   @override
   void initState() {
@@ -58,16 +59,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _checkAnswer() {
     if (_controller.text == _randomNumber.toString()) {
-      _showDialog('Congratulations', 'You guessed the number right!');
+      _flashBackground(Colors.green);
       _eloScore += 15;
       _riddlesSolved++;
       _generateRiddle();
     } else {
-      _showDialog('Oops!', 'Wrong guess. Try again!');
+      _flashBackground(Colors.red);
       _eloScore -= 15;
     }
     _controller.clear();
     _guessed = true;
+  }
+
+  // Function to flash the background color.
+  void _flashBackground(Color color) {
+    setState(() {
+      _backgroundColor = color;
+    });
+    Future.delayed(Duration(milliseconds: 500), () {
+      setState(() {
+        _backgroundColor = Colors.white;
+      });
+    });
   }
 
   void _skipRiddle() {
@@ -77,92 +90,78 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _showDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Stack(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '$_riddlesSolved',
-                  style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  _riddle,
-                  style: const TextStyle(fontSize: 23),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _controller,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: 'What number am I?',
-                    border: OutlineInputBorder(),
+        body: AnimatedContainer(
+        duration: Duration(milliseconds: 500),
+        color: _backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '$_riddlesSolved',
+                    style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _checkAnswer,
-                      child: const Text('Submit'),
+                  const SizedBox(height: 10),
+                  Text(
+                    _riddle,
+                    style: const TextStyle(fontSize: 23),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _controller,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'What number am I?',
+                      border: OutlineInputBorder(),
                     ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: _skipRiddle,
-                      child: const Text('Skip'),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _checkAnswer,
+                        child: const Text('Submit'),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: _skipRiddle,
+                        child: const Text('Skip'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text(
+                    'Elo: $_eloScore',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
-              ],
-            ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Text(
-                  'Elo: $_eloScore',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
