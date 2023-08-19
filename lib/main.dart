@@ -54,6 +54,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _removeLastDigit() {
+    if (_currentInput.isNotEmpty) {
+      setState(() {
+        _currentInput = _currentInput.substring(0, _currentInput.length - 1);
+      });
+    }
+  }
+
   void _clearInput() {
     setState(() {
       _currentInput = "";
@@ -130,12 +138,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
-                  Text( // Displaying the number being input by the user
+                  Text(
                     _currentInput,
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-                  // Custom keypad
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -145,6 +152,21 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Text('$index'),
                       );
                     }),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _removeLastDigit,
+                        child: const Text('Back'),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: _clearInput,
+                        child: const Text('Clear'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   Row(
