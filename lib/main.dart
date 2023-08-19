@@ -46,6 +46,20 @@ class _MyHomePageState extends State<MyHomePage> {
     _generateRiddle();
   }
 
+  String _currentInput = ""; // To store the number being input by the user.
+
+  void _appendToInput(String number) {
+    setState(() {
+      _currentInput += number;
+    });
+  }
+
+  void _clearInput() {
+    setState(() {
+      _currentInput = "";
+    });
+  }
+
   void _generateRiddle() {
     final RiddleGenerator riddleGenerator = RiddleGenerator();
     final RiddleResult result = riddleGenerator.generateRiddle();
@@ -93,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: AnimatedContainer(
+      body: AnimatedContainer(
         duration: Duration(milliseconds: 500),
         color: _backgroundColor,
         child: Padding(
@@ -116,13 +130,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
-                  TextField(
-                    controller: _controller,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'What number am I?',
-                      border: OutlineInputBorder(),
-                    ),
+                  Text( // Displaying the number being input by the user
+                    _currentInput,
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  // Custom keypad
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: List.generate(10, (index) {
+                      return ElevatedButton(
+                        onPressed: () => _appendToInput(index.toString()),
+                        child: Text('$index'),
+                      );
+                    }),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -134,7 +156,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton(
-                        onPressed: _skipRiddle,
+                        onPressed: () {
+                          _clearInput();
+                          _skipRiddle();
+                        },
                         child: const Text('Skip'),
                       ),
                     ],
