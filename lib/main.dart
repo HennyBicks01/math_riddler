@@ -261,6 +261,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             (MediaQuery.of(context).size.width / 4) - 15,
                             .75 * (MediaQuery.of(context).size.height / 4) -3,
                           ),
+                          shape: RoundedRectangleBorder(  // This line squares off the button
+                            borderRadius: BorderRadius.circular(20), // Setting the borderRadius to 0 will make it completely square
+                          ),
                           backgroundColor: Colors.green,
                         ),
                         child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
