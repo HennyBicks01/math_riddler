@@ -213,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     fontSize: 40, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               // Riddle
               Expanded(
                 flex: 3,
@@ -225,14 +225,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              const Spacer(),
               Text(
                 _currentInput,
                 style: const TextStyle(
                     fontSize: 32, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              // This will push the grid (keypad) to the bottom
+              const Spacer(),
               // Keypad
               Expanded(
                 flex: 2,
