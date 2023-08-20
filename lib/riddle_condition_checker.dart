@@ -14,6 +14,7 @@ class RiddleConditionChecker {
       throw ArgumentError('Digits length should be between 2 and 7');
     }
 
+    /// All Digit Functions
     // Sum of all digits
     if (condition.contains("The sum of my digits is")) {
       int expectedSum = int.parse(
@@ -28,6 +29,7 @@ class RiddleConditionChecker {
       return digits.reduce((a, b) => a * b) == expectedProduct;
     }
 
+    ///Two Digit Functions
     // Difference between two digits
     RegExp diffRegex = RegExp(
         r"My (\w+) digit is (\d+) (more|less) than my (\w+) digit.");
@@ -61,6 +63,7 @@ class RiddleConditionChecker {
       return digit1 == times * digit2;
     }
 
+    ///Three Digit Functions
     // Product square condition
     RegExp productSquareRegex = RegExp(
         r"The product of my (\w+) and (\w+) digits equals the square of my (\w+) digit.");
