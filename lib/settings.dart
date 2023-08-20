@@ -6,24 +6,24 @@ class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key, required this.onDigitsChanged}) : super(key: key);
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   double _currentSliderValue = 3;  // Default value set to 3 digits
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
+            const Text(
               'Number of Digits for Riddles',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
