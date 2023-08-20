@@ -14,8 +14,11 @@ class RiddleGenerator {
   final RiddleConditionChecker conditionChecker = RiddleConditionChecker();
   final RiddleConditions riddleConditions = RiddleConditions();
 
+  int minDigits = 2;
+  int maxDigits = 7;
+
   List<int> _generateNumber() {
-    int numDigits = _random.nextInt(4) + 3; // Randomly choose between 2 to 7 digits
+    int numDigits = _random.nextInt(maxDigits - minDigits + 1) + minDigits; // Generates a number between minDigits and maxDigits
     return List.generate(numDigits, (index) => _random.nextInt(10));
   }
 
