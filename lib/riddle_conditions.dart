@@ -33,6 +33,13 @@ class RiddleConditions {
         // temp array
         List<String> tempConditions2 = [];
 
+        // Power Function for two different digits
+        int poweredValue = pow(digits[i], digits[j]).toInt();
+        int numCharacters = poweredValue.toString().length;
+        if(numCharacters <= 10) {  // This is an arbitrary limit you can adjust based on your needs
+          tempConditions2.add("If my ${digitNames[i]} digit was raised to the power of my ${digitNames[j]} digit, the result would be $numCharacters digits.");
+        }
+
         // +,-,= Functions for two different digits
         int difference = digits[i] - digits[j];
         if (difference > 0) {

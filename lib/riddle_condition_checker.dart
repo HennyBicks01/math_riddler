@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class RiddleConditionChecker {
   bool satisfiesCondition(List<int> digits, String condition) {
     if (digits.length < 2 || digits.length > 7) {
@@ -32,6 +34,21 @@ class RiddleConditionChecker {
     }
 
     ///Two Digit Functions
+    // Power Function for two different digits
+    RegExp powerConditionRegex = RegExp(
+        r"If my (\w+) digit was raised to the power of my (\w+) digit, the result would be (\d+) digits.");
+    Match? powerConditionMatch = powerConditionRegex.firstMatch(condition);
+    if (powerConditionMatch != null) {
+      int baseDigit = digits[nameToIndex[powerConditionMatch.group(1)!]!];
+      int exponentDigit = digits[nameToIndex[powerConditionMatch.group(2)!]!];
+      int numCharacters = int.parse(powerConditionMatch.group(3)!);
+
+      int poweredValue = pow(baseDigit, exponentDigit).toInt();
+      int poweredValueLength = poweredValue.toString().length;
+
+      return poweredValueLength == numCharacters;
+    }
+
     // Difference between two digits
     RegExp diffRegex = RegExp(
         r"My (\w+) digit is (\d+) (more|less) than my (\w+) digit.");
