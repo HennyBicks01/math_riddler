@@ -1,18 +1,20 @@
 class RiddleConditionChecker {
-  Map<String, int> nameToIndex = {
-    'millions': 6,
-    'hundredThousands': 5,
-    'tenThousands': 4,
-    'thousands': 3,
-    'hundreds': 2,
-    'tens': 1,
-    'ones': 0,
-  };
-
   bool satisfiesCondition(List<int> digits, String condition) {
     if (digits.length < 2 || digits.length > 7) {
       throw ArgumentError('Digits length should be between 2 and 7');
     }
+
+    int length = digits.length;
+
+    Map<String, int> nameToIndex = {
+      "ones": length - 1,
+      "tens": length - 2,
+      "hundreds": length - 3,
+      "thousands": length - 4,
+      "tenThousands": length - 5,
+      "hundredThousands": length - 6,
+      "millions": length - 7
+    };
 
     /// All Digit Functions
     // Sum of all digits

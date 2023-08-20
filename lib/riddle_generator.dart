@@ -14,12 +14,19 @@ class RiddleGenerator {
   final RiddleConditionChecker conditionChecker = RiddleConditionChecker();
   final RiddleConditions riddleConditions = RiddleConditions();
 
-  int minDigits = 2;
-  int maxDigits = 7;
+  int minDigits = 3;
+  int maxDigits = 3;
 
   List<int> _generateNumber() {
     int numDigits = _random.nextInt(maxDigits - minDigits + 1) + minDigits; // Generates a number between minDigits and maxDigits
-    return List.generate(numDigits, (index) => _random.nextInt(10));
+    List<int> number = [];
+    // Ensure the first digit is never zero
+    number.add(_random.nextInt(9) + 1);
+    // For the remaining digits
+    for (int i = 1; i < numDigits; i++) {
+      number.add(_random.nextInt(10));
+    }
+    return number;
   }
 
   List<String> syphonThroughPossibilities(int number) {
@@ -29,7 +36,7 @@ class RiddleGenerator {
     int maxNumber = (pow(10, length) - 1).toInt();
 
     if (minNumber >= maxNumber) {
-      //print('Invalid range: minNumber should be less than maxNumber.');
+      print('Invalid range: minNumber should be less than maxNumber.');
       return [];
     }
 
@@ -42,14 +49,14 @@ class RiddleGenerator {
 
     while (possibleNumbers.length != 1) {
       if (possibleNumbers.isEmpty) {
-        //print('No possible numbers left.');
+        print('No possible numbers left.');
         break;
       }
 
       // Directly choose a condition from the main conditions list.
       // Using the 'this.' prefix to access the class's instance of Random
       String selectedCondition = conditions[_random.nextInt(conditions.length)];
-      ///print('Selected condition: $selectedCondition');
+      print('Selected condition: $selectedCondition');
 
       // Filter the list of possible numbers based on the selected condition
       List<int> filteredNumbers = possibleNumbers.where((number) {
@@ -65,20 +72,20 @@ class RiddleGenerator {
           filteredNumbers.length < possibleNumbers.length) {
         // Update possibleNumbers if the filtering is successful.
         possibleNumbers = filteredNumbers;
-        //print('Numbers that passed this condition: $possibleNumbers');
+        print('Numbers that passed this condition: $possibleNumbers');
 
         finalConditions.add(selectedCondition);
         conditions.remove(
             selectedCondition); // Remove the condition from the main list to avoid repetition
       } else {
-        //print('Condition didn\'t help in filtering. Numbers remained the same.');
+        print('Condition didn\'t help in filtering. Numbers remained the same.');
         conditions.remove(
             selectedCondition); // Remove the ineffective condition
       }
 
       // Check if there are no more conditions to try
       if (conditions.isEmpty) {
-        //print('No more conditions left to try.');
+        print('No more conditions left to try.');
         break;
       }
     }

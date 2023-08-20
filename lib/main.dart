@@ -36,7 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _randomNumber;
   late String _riddle;
   int _eloScore = 1200;
-  bool _guessed = false;
   Color _backgroundColor = Colors.white; // The default background color.
   final riddleGenerator = RiddleGenerator();
 
@@ -73,9 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final RiddleResult result = riddleGenerator.generateRiddle();
     _randomNumber = result.number;
     _riddle = result.riddle;
-    _guessed = false;
-    //print(_randomNumber);
-    //print(_riddle);
+    print(_randomNumber);
+    print(_riddle);
     setState(() {});
   }
 
@@ -96,7 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _currentInput = ""; // This line clears the input after Submit is clicked.
     });
-    _guessed = true;
   }
 
   // Function to flash the background color.
@@ -112,10 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _skipRiddle() {
-    if (!_guessed) {
-      _eloScore -= 10;
-      _generateRiddle();
-    }
+    _eloScore -= 10;
+    _generateRiddle();
   }
 
   @override
@@ -125,6 +120,17 @@ class _MyHomePageState extends State<MyHomePage> {
       Color textColor = Colors.black;  // Default text color to black for most buttons.
 
       switch (index) {
+        case 3:
+          return GridTile(
+            footer: Container(color: Colors.transparent),  // Empty transparent container for additional space
+            child: ElevatedButton(
+              onPressed: _checkAnswer,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
+            ),
+          );
         case 12:
           buttonColor = Colors.orange;
           return ElevatedButton(
@@ -165,7 +171,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             child: Text('>>', style: TextStyle(fontSize: 20, color: textColor)),
           );
-        case 3:
         case 7:
         case 11:
           return Container(color: Colors.transparent); // Empty transparent containers
@@ -248,25 +253,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       return buildKey(index);
                                     },
                                   ),
-                                Positioned(
-                                  top: 0,
-                                  left: (MediaQuery.of(context).size.width / 4) * 3 - 20,
-                                  child: ElevatedButton(
-                                    onPressed: _checkAnswer,
-
-                                    style: ElevatedButton.styleFrom(
-                                      fixedSize: Size(
-                                        (MediaQuery.of(context).size.width / 4) - 15,
-                                        .75 * (MediaQuery.of(context).size.height / 4) -3,
-                                      ),
-                                      shape: RoundedRectangleBorder(  // This line squares off the button
-                                        borderRadius: BorderRadius.circular(20), // Setting the borderRadius to 0 will make it completely square
-                                      ),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                    child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
