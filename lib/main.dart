@@ -36,7 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _randomNumber;
   late String _riddle;
   int _eloScore = 1200;
-  int _riddlesSolved = 0;
   bool _guessed = false;
   Color _backgroundColor = Colors.white; // The default background color.
   final riddleGenerator = RiddleGenerator();
@@ -89,7 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_currentInput == _randomNumber.toString()) {
       _flashBackground(Colors.green);
       _eloScore += 15;
-      _riddlesSolved++;
       _generateRiddle();
     } else {
       _flashBackground(Colors.red);
@@ -186,124 +184,116 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return Scaffold(
-      body: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        color: _backgroundColor,
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Stack(  // Wrap your main content in a Stack
-            children: <Widget>[
-              Column(
-              children: [
-              // Elo Score at the top-right corner
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    padding: const EdgeInsets.all(4.0),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      'Elo: $_eloScore',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+        body: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            color: _backgroundColor,
+            child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Stack(
+                    children: <Widget>[
+                      Column(
+                        children: [
+                          // 1. Move Elo Score here.
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              padding: const EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.7),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                'Elo: $_eloScore',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // 2. Current Input (Guess Area) goes here.
+                          Text(
+                            _currentInput,
+                            style: const TextStyle(
+                                fontSize: 32, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          // 3. Riddle positioned above the keypad.
+                          Expanded(
+                            flex: 7,
+                            child: Center(
+                              child: Text(
+                                _riddle,
+                                style: const TextStyle(fontSize: 20),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                            // Keypad
+                            Expanded(
+                              flex: 3,
+                              child: Stack(
+                                children: [
+                                  GridView.builder(
+                                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      childAspectRatio: 2,
+                                      mainAxisSpacing: 5,
+                                      crossAxisSpacing: 5,
+                                    ),
+                                    itemCount: 16,
+                                    itemBuilder: (context, index) {
+                                      return buildKey(index);
+                                    },
+                                  ),
+                                Positioned(
+                                  top: 0,
+                                  left: (MediaQuery.of(context).size.width / 4) * 3 - 20,
+                                  child: ElevatedButton(
+                                    onPressed: _checkAnswer,
+
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize: Size(
+                                        (MediaQuery.of(context).size.width / 4) - 15,
+                                        .75 * (MediaQuery.of(context).size.height / 4) -3,
+                                      ),
+                                      shape: RoundedRectangleBorder(  // This line squares off the button
+                                        borderRadius: BorderRadius.circular(20), // Setting the borderRadius to 0 will make it completely square
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                    child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
+                      Positioned( // This widget will position the settings button in the top-left corner
+                        top: 10,
+                        left: 0,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => SettingsPage(onDigitsChanged: _updateDigitsValue)),
+                            );
+                          },
+
+                          style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[400], // button color
+                          foregroundColor: Colors.black, // icon color
+                          shape: const CircleBorder(), ),
+
+                          child: const Icon(Icons.settings),
                     ),
                   ),
-                ),
-                // Riddles Solved Counter
-                Text(
-                  '$_riddlesSolved',
-                  style: const TextStyle(
-                      fontSize: 40, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 5),
-                // Riddle
-                Expanded(
-                  flex: 3,
-                  child: Center(
-                    child: Text(
-                      _riddle,
-                      style: const TextStyle(fontSize: 23),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-                Text(
-                  _currentInput,
-                  style: const TextStyle(
-                      fontSize: 32, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const Spacer(),
-                // Keypad
-                Expanded(
-                  flex: 2,
-                  child: Stack(
-                    children: [
-                      GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          childAspectRatio: 2,
-                          mainAxisSpacing: 5,
-                          crossAxisSpacing: 5,
-                        ),
-                        itemCount: 16,
-                        itemBuilder: (context, index) {
-                          return buildKey(index);
-                        },
-                      ),
-                    Positioned(
-                      top: 0,
-                      left: (MediaQuery.of(context).size.width / 4) * 3 - 20,
-                      child: ElevatedButton(
-                        onPressed: _checkAnswer,
-
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: Size(
-                            (MediaQuery.of(context).size.width / 4) - 15,
-                            .75 * (MediaQuery.of(context).size.height / 4) -3,
-                          ),
-                          shape: RoundedRectangleBorder(  // This line squares off the button
-                            borderRadius: BorderRadius.circular(20), // Setting the borderRadius to 0 will make it completely square
-                          ),
-                          backgroundColor: Colors.green,
-                        ),
-                        child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-                Positioned( // This widget will position the settings button in the top-left corner
-                  top: 10,
-                  left: 0,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => SettingsPage(onDigitsChanged: _updateDigitsValue)),
-                      );
-                    },
-
-                    style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[400], // button color
-                    foregroundColor: Colors.black, // icon color
-                    shape: const CircleBorder(), ),
-
-                    child: const Icon(Icons.settings),
-          ),
-        ),
-    ]
-    )
-    )
-    )
+                ]
+              )
+            )
+          )
     );
   }
 }
