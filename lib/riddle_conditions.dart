@@ -3,29 +3,28 @@ import 'dart:math';
 class RiddleConditions {
   final Random _random = Random();
 
-  List<String> generateDigitNames(int numDigits) {
-    List<String> digitNames = [
-      'ones',
-      'tens',
-      'hundreds',
-      'thousands',
-      'tenThousands',
-      'hundredThousands',
-      'millions'
-    ];
-    if (numDigits <= digitNames.length) {
-      return digitNames.sublist(0, numDigits);
-    }
-    for (int i = digitNames.length; i < numDigits; i++) {
-      digitNames.add('${i + 1}th place');
-    }
-    return digitNames;
-  }
-
   List<String> generalCondition(List<int> digits) {
     List<String> conditions = [];
+
     int numDigits = digits.length;
-    List<String> digitNames = generateDigitNames(numDigits);
+
+    if (numDigits < 2 || numDigits > 7) {
+      throw ArgumentError('Digits length should be between 2 and 7');
+    }
+
+    Map<int, String> indexToName = {
+      numDigits - 1: "ones",
+      numDigits - 2: "tens",
+      numDigits - 3: "hundreds",
+      numDigits - 4: "thousands",
+      numDigits - 5: "tenThousands",
+      numDigits - 6: "hundredThousands",
+      numDigits - 7: "millions",
+    };
+
+    List<String> digitNames = List.generate(numDigits, (index) {
+      return indexToName[index] ?? '${index + 1}th place';
+    });
 
     // Use combinatorics for iterating through variable digit combinations
     for (int i = 0; i < numDigits; i++) {
