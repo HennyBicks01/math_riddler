@@ -15,8 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Riddle Number Game',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.grey,
       ),
       home: const MyHomePage(title: 'Guess the Number Riddle'),
     );
@@ -36,7 +35,9 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _randomNumber;
   late String _riddle;
   int _eloScore = 1200;
-  Color _backgroundColor = Colors.white; // The default background color.
+  Color _backgroundColor = Colors.grey[200]!;  // Changed to a calculator grayish tone.
+  String _currentRiddleDisplay = '';
+
   final riddleGenerator = RiddleGenerator();
 
 
@@ -74,7 +75,21 @@ class _MyHomePageState extends State<MyHomePage> {
     _riddle = result.riddle;
     print(_randomNumber);
     print(_riddle);
+
+    _currentRiddleDisplay = '';
+    // Start typing out animation.
+    _typeOutRiddle();
+
     setState(() {});
+  }
+
+  void _typeOutRiddle() async {
+    for (int i = 0; i < _riddle.length; i++) {
+      await Future.delayed(Duration(milliseconds: 50));  // Delay for 50ms for each character.
+      setState(() {
+        _currentRiddleDisplay += _riddle[i];
+      });
+    }
   }
 
   void _updateDigitsValue(int newValue) {
@@ -115,6 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     Widget buildKey(int index) {
       Color buttonColor;
       Color textColor = Colors.black;  // Default text color to black for most buttons.
@@ -190,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
         body: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 300),
             color: _backgroundColor,
             child: Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -229,36 +246,36 @@ class _MyHomePageState extends State<MyHomePage> {
                             flex: 7,
                             child: Center(
                               child: Text(
-                                _riddle,
+                                _currentRiddleDisplay,
                                 style: const TextStyle(fontSize: 20),
                                 textAlign: TextAlign.center,
-                              ),
+                              )
                             ),
                           ),
-                            // Keypad
-                            Expanded(
-                              flex: 3,
-                              child: Stack(
-                                children: [
-                                  GridView.builder(
-                                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      childAspectRatio: 2,
-                                      mainAxisSpacing: 5,
-                                      crossAxisSpacing: 5,
-                                    ),
-                                    itemCount: 16,
-                                    itemBuilder: (context, index) {
-                                      return buildKey(index);
-                                    },
+                          // Keypad
+                          Expanded(
+                            flex: 3,
+                            child: Stack(
+                              children: [
+                                GridView.builder(
+                                  padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    childAspectRatio: screenWidth / (screenHeight / 3.75),
+                                    mainAxisSpacing: 5,
+                                    crossAxisSpacing: 5,
                                   ),
+                                  itemCount: 16,
+                                  itemBuilder: (context, index) {
+                                    return buildKey(index);
+                                  },
+                                ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      Positioned( // This widget will position the settings button in the top-left corner
+                      Positioned(
                         top: 10,
                         left: 0,
                         child: ElevatedButton(
@@ -267,16 +284,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               MaterialPageRoute(builder: (context) => SettingsPage(onDigitsChanged: _updateDigitsValue)),
                             );
                           },
-
                           style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[400], // button color
-                          foregroundColor: Colors.black, // icon color
-                          shape: const CircleBorder(), ),
-
-                          child: const Icon(Icons.settings),
-                    ),
-                  ),
-                ]
+                            backgroundColor: Colors.grey[700], // Darker button for settings.
+                            shape: const CircleBorder(),
+                          ),
+                          child: const Icon(Icons.settings, color: Colors.white),  // White icon for better visibility.
+                        ),
+                      ),
+                    ]
               )
             )
           )

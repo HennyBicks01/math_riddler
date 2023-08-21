@@ -19,6 +19,16 @@ class RiddleConditionChecker {
     };
 
     /// All Digit Functions
+    // Ascending order check
+    if (condition.contains("My digits are in ascending order")) {
+      return _isSortedAscending(digits);
+    }
+
+    // Descending order check
+    if (condition.contains("My digits are in descending order")) {
+      return _isSortedDescending(digits);
+    }
+
     // Sum of all digits
     if (condition.contains("The sum of my digits is")) {
       int expectedSum = int.parse(
@@ -31,6 +41,17 @@ class RiddleConditionChecker {
       int expectedProduct = int.parse(
           condition.split("is ")[1].trim().split(".")[0]);
       return digits.reduce((a, b) => a * b) == expectedProduct;
+    }
+
+    // Mirrored number check
+    if (condition.contains("My digits form a mirrored number")) {
+      return isMirrored(digits.join());
+    }
+
+    // Fibonacci sequence check
+    int numberFormed = int.parse(digits.join());
+    if (condition.contains("I'm in the Fibonacci sequence.")) {
+      return isFibonacci(numberFormed);
     }
 
     ///Two Digit Functions
@@ -119,6 +140,100 @@ class RiddleConditionChecker {
       return divisor != 0 && combinedValue / divisor == expectedResult;
     }
 
+    // Average of two digits equals the third
+    RegExp averageRegex = RegExp(
+        r"The average of my (\w+) and (\w+) digits is equal to my (\w+) digit.");
+    Match? averageMatch = averageRegex.firstMatch(condition);
+    if (averageMatch != null) {
+      int digit1 = digits[nameToIndex[averageMatch.group(1)!]!];
+      int digit2 = digits[nameToIndex[averageMatch.group(2)!]!];
+      int digit3 = digits[nameToIndex[averageMatch.group(3)!]!];
+      double averageValue = (digit1 + digit2) / 2.0;
+      return averageValue == digit3.toDouble();
+    }
+
+    ///Four Digit Functions
+    //The product of the first two equals the sum of the last two
+    RegExp prodSumRegex = RegExp(
+        r"The product of my (\w+) and (\w+) digits is equal to the sum of my (\w+) and (\w+) digits.");
+    Match? prodSumMatch = prodSumRegex.firstMatch(condition);
+    if (prodSumMatch != null) {
+      int digit1 = digits[nameToIndex[prodSumMatch.group(1)!]!];
+      int digit2 = digits[nameToIndex[prodSumMatch.group(2)!]!];
+      int digit3 = digits[nameToIndex[prodSumMatch.group(3)!]!];
+      int digit4 = digits[nameToIndex[prodSumMatch.group(4)!]!];
+
+      return digit1 * digit2 == digit3 + digit4;
+    }
+
+    // Two pairs are compliments
+    RegExp complementRegex = RegExp(
+        r"If you connect my (\w+) and (\w+) digits, and then my (\w+) and (\w+) digits, the two numbers are complementary\.");
+    Match? complementMatch = complementRegex.firstMatch(condition);
+    if (complementMatch != null) {
+      int digit1 = digits[nameToIndex[complementMatch.group(1)!]!];
+      int digit2 = digits[nameToIndex[complementMatch.group(2)!]!];
+      int digit3 = digits[nameToIndex[complementMatch.group(3)!]!];
+      int digit4 = digits[nameToIndex[complementMatch.group(4)!]!];
+
+      return int.parse('$digit1$digit2') + int.parse('$digit3$digit4') == 90;
+    }
+
+
     return false;
   }
+
+  /// Checks if the list of digits are in ascending order
+  bool _isSortedAscending(List<int> list) {
+    for (int i = 0; i < list.length - 1; i++) {
+      if (list[i] >= list[i + 1]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Checks if the list of digits are in descending order
+  bool _isSortedDescending(List<int> list) {
+    for (int i = 0; i < list.length - 1; i++) {
+      if (list[i] <= list[i + 1]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Checks if the list of digits are Mirrored
+  bool isMirrored(String number) {
+    int n = number.length;
+
+    if (n == 1) return true; // Single digits are always mirrored.
+
+    String pattern;
+    if (n % 2 == 0) { // Even number of digits
+      pattern = r"^(\d{" + (n ~/ 2).toString() + r"})" +
+          r"(?=\1$)";
+    } else { // Odd number of digits
+      pattern = r"^(\d{" + (n ~/ 2).toString() + r"})" +
+          r".(?=\1$)";
+    }
+
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(number);
+  }
+
+  /// Checks if number is in fibonacci sequence
+  bool isFibonacci(int num) {
+    int a = 0, b = 1, temp;
+    while (b <= num) {
+      if (b == num) {
+        return true;
+      }
+      temp = a;
+      a = b;
+      b = temp + b;
+    }
+    return false;
+  }
+
 }

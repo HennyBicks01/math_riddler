@@ -29,6 +29,7 @@ class RiddleConditions {
     // Use combinatorics for iterating through variable digit combinations
     for (int i = 0; i < numDigits; i++) {
       for (int j = i + 1; j < numDigits; j++) {
+
         /// Two-digit conditions
         // temp array
         List<String> tempConditions2 = [];
@@ -69,6 +70,7 @@ class RiddleConditions {
         }
 
         for (int k = j + 1; k < numDigits; k++) {
+
           /// Three digit conditions
           // temp array
           List<String> tempConditions3 = [];
@@ -96,6 +98,13 @@ class RiddleConditions {
                 "Connecting my ${digitNames[i]} and ${digitNames[j]} digits and dividing by my ${digitNames[k]} digit gives $result. ");
           }
 
+          // The average of two digits is equal to the third
+          double average = (digits[i] + digits[j]) / 2;
+          if (average == digits[k].toDouble()) {
+            tempConditions3.add(
+                "The average of my ${digitNames[i]} and ${digitNames[j]} digits is equal to my ${digitNames[k]} digit. ");
+          }
+
           // randomly select one and add it to tempConditions.
           if (tempConditions3.isNotEmpty) {
             int randomIndex = _random.nextInt(tempConditions3.length);
@@ -103,16 +112,107 @@ class RiddleConditions {
             tempConditions3.clear(); // Clear the list for the next iteration.
           }
 
+          for (int l = k + 1; l < numDigits; l++) {
 
+            /// Four digit conditions
+            // temp array
+            List<String> tempConditions4 = [];
+
+            // Product of the first two equals sum of the last two
+            if (digits[i] * digits[j] == digits[k] + digits[l]) {
+              tempConditions4.add("The product of my ${digitNames[i]} and ${digitNames[j]} digits is equal to the sum of my ${digitNames[k]} and ${digitNames[l]} digits.");
+            }
+
+            // The two pairs of digits form numbers that are complements of each other (summing to 90)
+            if (int.parse('${digits[i]}${digits[j]}') + int.parse('${digits[k]}${digits[l]}') == 90) {
+              tempConditions4.add("If you connect my ${digitNames[i]} and ${digitNames[j]} digits, and then my ${digitNames[k]} and ${digitNames[l]} digits, the two numbers are complementary");
+            }
+
+            // randomly select one and add it to tempConditions.
+            if (tempConditions4.isNotEmpty) {
+              int randomIndex = _random.nextInt(tempConditions4.length);
+              conditions.add(tempConditions4[randomIndex]);
+              tempConditions4.clear(); // Clear the list for the next iteration.
+            }
+          }
         }
       }
     }
-    // Move the general sum and product conditions outside the loops.
+
+    ///All Number Conditions
+
+    //Sum of all numbers
     conditions.add(
         "The sum of my digits is ${digits.reduce((a, b) => a + b)}. ");
+
+    //Product of all numbers
     conditions.add(
         "The product of all my digits is ${digits.reduce((a, b) => a * b)}. ");
 
+    // Ascending order check
+    if (isSortedAscending(digits)) {
+      conditions.add("My digits are in ascending order. ");
+    }
+
+    // Descending order check
+    if (isSortedDescending(digits)) {
+      conditions.add("My digits are in descending order. ");
+    }
+
+    // Mirrored number check
+    if (isMirroredNumber(digits)) {
+      conditions.add("My digits form a mirrored number.");
+    }
+
+    // Fibonacci number check
+    int numberFormed = int.parse(digits.join());
+    if (isFibonacci(numberFormed)) {
+      conditions.add("I'm in the Fibonacci sequence.");
+    }
+
     return conditions;
   }
+
+  bool isSortedAscending(List<int> list) {
+    for (int i = 0; i < list.length - 1; i++) {
+      if (list[i] >= list[i + 1]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool isSortedDescending(List<int> list) {
+    for (int i = 0; i < list.length - 1; i++) {
+      if (list[i] <= list[i + 1]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool isMirroredNumber(List<int> digits) {
+    List<int> firstHalf = digits.sublist(0, (digits.length + 1) ~/ 2);
+    List<int> secondHalf = digits.sublist(digits.length ~/ 2).reversed.toList();
+
+    for (int m = 0; m < firstHalf.length; m++) {
+      if (firstHalf[m] != secondHalf[m]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool isFibonacci(int n) {
+    if (n <= 1) return true;
+    int a = 0, b = 1, c = a + b;
+    while (c <= n) {
+      if (c == n) return true;
+      a = b;
+      b = c;
+      c = a + b;
+    }
+    return false;
+  }
+
 }
