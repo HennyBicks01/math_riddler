@@ -13,11 +13,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Riddle Number Game',
-      theme: ThemeData(
+        title: 'Riddle Number Game',
+        theme: ThemeData(
         primarySwatch: Colors.grey,
-      ),
-      home: const MyHomePage(title: 'Guess the Number Riddle'),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(
+            fontFamily: 'TI84Font',
+            fontSize: 20,
+            ),
+          ),
+        ),
+        home: const MyHomePage(title: 'Guess the Number Riddle'),
     );
   }
 }
@@ -85,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _typeOutRiddle() async {
     for (int i = 0; i < _riddle.length; i++) {
-      await Future.delayed(Duration(milliseconds: 50));  // Delay for 50ms for each character.
+      await Future.delayed(const Duration(milliseconds: 50));  // Delay for 50ms for each character.
       setState(() {
         _currentRiddleDisplay += _riddle[i];
       });
@@ -234,34 +240,65 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                          // 2. Current Input (Guess Area) goes here.
-                          Text(
-                            _currentInput,
-                            style: const TextStyle(
-                                fontSize: 32, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          // 3. Riddle positioned above the keypad.
+
+
+                          // 3. Riddle positioned above the keypad wrapped in a "display box".
                           Expanded(
                             flex: 7,
                             child: Center(
-                              child: Text(
-                                _currentRiddleDisplay,
-                                style: const TextStyle(fontSize: 20),
-                                textAlign: TextAlign.center,
-                              )
+                              child: Container(
+                                width: screenWidth * 0.85,  // 70% of the screen width
+                                height: screenHeight * 0.5, // 30% of the screen height
+                                padding: const EdgeInsets.all(20.0),
+                                decoration: BoxDecoration(
+                                    color: const Color(0xFFA8B6A0), // Grayish-green tint
+                                    borderRadius: BorderRadius.circular(10), // Rounded edges
+                                    boxShadow: const [ // Optional shadow effect
+                                      BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 5.0,
+                                          offset: Offset(2, 2)
+                                      ),
+                                    ]
+                                ),
+                                child: Stack(
+                                  children: <Widget>[
+                                    // Riddle Display
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: Text(
+                                        _currentRiddleDisplay,
+                                        style: const TextStyle(fontSize: 22),
+                                        textAlign: TextAlign.right,  // Make the text align right
+                                      ),
+                                    ),
+                                    // Current Input (Guess Area)
+                                    Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Text(
+                                        _currentInput,
+                                        style: const TextStyle(
+                                            fontSize: 32, fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.right, // Make the text align right
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
+
+
                           // Keypad
                           Expanded(
-                            flex: 3,
+                            flex: 4,
                             child: Stack(
                               children: [
                                 GridView.builder(
                                   padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
-                                    childAspectRatio: screenWidth / (screenHeight / 3.75),
+                                    childAspectRatio: screenWidth / (screenHeight / 3),
                                     mainAxisSpacing: 5,
                                     crossAxisSpacing: 5,
                                   ),
