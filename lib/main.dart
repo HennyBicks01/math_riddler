@@ -325,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             backgroundColor: Colors.grey[700], // Darker button for settings.
                             shape: const CircleBorder(),
                           ),
-                          child: const Icon(Icons.settings, color: Colors.white),  // White icon for better visibility.
+                          child: const Icon(Icons.menu, color: Colors.white),  // White icon for better visibility.
                         ),
                       ),
                     ]
