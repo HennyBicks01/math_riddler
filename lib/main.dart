@@ -148,7 +148,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void _skipRiddle() {
     _eloScore -= 10;
     _generateRiddle();
+    _wrongGuesses.clear();  // Clear the list of wrong guesses when skipping the riddle.
   }
+
 
   @override
   Widget build(BuildContext context) {
