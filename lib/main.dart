@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mathriddles/riddle_generator.dart';
@@ -13,17 +14,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Riddle Number Game',
-        theme: ThemeData(
+      title: 'Riddle Number Game',
+      theme: ThemeData(
         primarySwatch: Colors.grey,
         textTheme: const TextTheme(
           bodyMedium: TextStyle(
             fontFamily: 'TI84Font',
             fontSize: 20,
-            ),
           ),
         ),
-        home: const MyHomePage(title: 'Guess the Number Riddle'),
+      ),
+      home: const MyHomePage(title: 'Guess the Number Riddle'),
     );
   }
 }
@@ -43,6 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _eloScore = 1200;
   Color _backgroundColor = Colors.grey[200]!;  // Changed to a calculator grayish tone.
   String _currentRiddleDisplay = '';
+  double _fontSize = 20;  // default font size
+
 
   final riddleGenerator = RiddleGenerator();
 
@@ -60,6 +63,13 @@ class _MyHomePageState extends State<MyHomePage> {
       _currentInput += number;
     });
   }
+
+  void _updateFontSize(double newSize) {
+    setState(() {
+      _fontSize = newSize;
+    });
+  }
+
 
   void _removeLastDigit() {
     if (_currentInput.isNotEmpty) {
@@ -221,25 +231,47 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: <Widget>[
                       Column(
                         children: [
-                          // 1. Move Elo Score here.
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              padding: const EdgeInsets.all(4.0),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.7),
-                                borderRadius: BorderRadius.circular(5),
+
+                          // New Row for ELO Score and Menu Icon
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,  // Space out the children.
+                            children: [
+                              // Menu Icon (Settings)
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => SettingsPage(
+                                        onDigitsChanged: _updateDigitsValue,
+                                        onFontSizeChanged: (newSize) {
+                                          _updateFontSize(newSize);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.menu, color: CupertinoColors.inactiveGray),
                               ),
-                              child: Text(
-                                'Elo: $_eloScore',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+
+                              // Elo Score
+                              Container(
+                                padding: const EdgeInsets.all(4.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  'Elo: $_eloScore',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
+
 
 
                           // 3. Riddle positioned above the keypad wrapped in a "display box".
@@ -247,13 +279,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             flex: 7,
                             child: Center(
                               child: Container(
-                                width: screenWidth * 0.85,  // 70% of the screen width
-                                height: screenHeight * 0.5, // 30% of the screen height
+                                width: screenWidth * 0.85,
+                                height: screenHeight * 0.53,
                                 padding: const EdgeInsets.all(20.0),
                                 decoration: BoxDecoration(
-                                    color: const Color(0xFFA8B6A0), // Grayish-green tint
-                                    borderRadius: BorderRadius.circular(10), // Rounded edges
-                                    boxShadow: const [ // Optional shadow effect
+                                    color: const Color(0xFFA8B6A0),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: const [
                                       BoxShadow(
                                           color: Colors.black26,
                                           blurRadius: 5.0,
@@ -261,29 +293,40 @@ class _MyHomePageState extends State<MyHomePage> {
                                       ),
                                     ]
                                 ),
-                                child: Stack(
-                                  children: <Widget>[
-                                    // Riddle Display
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: Text(
-                                        _currentRiddleDisplay,
-                                        style: const TextStyle(fontSize: 22),
-                                        textAlign: TextAlign.right,  // Make the text align right
+
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        reverse: true,  // Makes the content start from the bottom
+                                        scrollDirection: Axis.vertical,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              _currentRiddleDisplay,
+                                              style: TextStyle(fontSize: _fontSize),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
+
+                                    // Small space between the riddle and the current input
                                     // Current Input (Guess Area)
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Text(
-                                        _currentInput,
-                                        style: const TextStyle(
-                                            fontSize: 32, fontWeight: FontWeight.bold),
-                                        textAlign: TextAlign.right, // Make the text align right
-                                      ),
+                                    Text(
+                                      _currentInput,
+                                      style: const TextStyle(
+                                          fontSize: 32, fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.right,
                                     ),
                                   ],
                                 ),
+
                               ),
                             ),
                           ),
@@ -312,26 +355,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       ),
-                      Positioned(
-                        top: 10,
-                        left: 0,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => SettingsPage(onDigitsChanged: _updateDigitsValue)),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[700], // Darker button for settings.
-                            shape: const CircleBorder(),
-                          ),
-                          child: const Icon(Icons.menu, color: Colors.white),  // White icon for better visibility.
-                        ),
-                      ),
                     ]
-              )
+                )
             )
-          )
+        )
     );
   }
 }
