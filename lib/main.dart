@@ -45,10 +45,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Color _backgroundColor = Colors.grey[200]!;  // Changed to a calculator grayish tone.
   String _currentRiddleDisplay = '';
   double _fontSize = 20;  // default font size
-
+  final List<String> _wrongGuesses = [];
 
   final riddleGenerator = RiddleGenerator();
-
 
   @override
   void initState() {
@@ -61,8 +60,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void _appendToInput(String number) {
     setState(() {
       _currentInput += number;
+      _currentRiddleDisplay = _riddle;
     });
   }
+
 
   void _updateFontSize(double newSize) {
     setState(() {
@@ -75,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_currentInput.isNotEmpty) {
       setState(() {
         _currentInput = _currentInput.substring(0, _currentInput.length - 1);
+        _currentRiddleDisplay = _riddle;
       });
     }
   }
@@ -82,6 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _clearInput() {
     setState(() {
       _currentInput = "";
+      _currentRiddleDisplay = _riddle;
     });
   }
 
@@ -118,14 +121,17 @@ class _MyHomePageState extends State<MyHomePage> {
       _flashBackground(Colors.green);
       _eloScore += 15;
       _generateRiddle();
+      _wrongGuesses.clear();  // Clear the list of wrong guesses upon correct answer.
     } else {
       _flashBackground(Colors.red);
       _eloScore -= 15;
+      _wrongGuesses.add(_currentInput);
     }
     setState(() {
       _currentInput = ""; // This line clears the input after Submit is clicked.
     });
   }
+
 
   // Function to flash the background color.
   void _flashBackground(Color color) {
@@ -311,22 +317,23 @@ class _MyHomePageState extends State<MyHomePage> {
                                               style: TextStyle(fontSize: _fontSize),
                                               textAlign: TextAlign.right,
                                             ),
+                                            ..._wrongGuesses.map((wrongGuess) => Text(
+                                              wrongGuess,
+                                              style: TextStyle(fontSize: _fontSize, color: Colors.red),
+                                              textAlign: TextAlign.right,
+                                            )).toList(),
+                                            Text(
+                                              _currentInput,
+                                              style: TextStyle(
+                                                  fontSize: _fontSize),
+                                              textAlign: TextAlign.right,
+                                            ),
                                           ],
                                         ),
                                       ),
                                     ),
-
-                                    // Small space between the riddle and the current input
-                                    // Current Input (Guess Area)
-                                    Text(
-                                      _currentInput,
-                                      style: const TextStyle(
-                                          fontSize: 32, fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.right,
-                                    ),
                                   ],
                                 ),
-
                               ),
                             ),
                           ),
