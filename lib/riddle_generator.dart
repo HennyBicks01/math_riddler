@@ -99,7 +99,7 @@ class RiddleGenerator {
 
     List<String> finalConditions = syphonThroughPossibilities(number);
 
-    String riddleText = 'I am a ${digits.length}-digit number. ';
+    String riddleText = 'I am a ${digits.length}-digit number.\n';
     for (int i = 0; i < finalConditions.length; i++) {
       String condition = finalConditions[i];
 
@@ -119,94 +119,112 @@ class RiddleGenerator {
       RegExp exp = RegExp(r"My (\w+) digit is (\d+) more than my (\w+) digit");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
+        String firstDigit = _digitInitial(match.group(1)!);
         String difference = match.group(2)!;
-        String secondDigit = match.group(3)!;
+        String secondDigit = _digitInitial(match.group(3)!);
         return '$firstDigit + $difference = $secondDigit\n';
       }
-    } else if (condition.contains("less than")) {
+    }
+
+    else if (condition.contains("less than")) {
       RegExp exp = RegExp(r"My (\w+) digit is (\d+) less than my (\w+) digit");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
+        String firstDigit = _digitInitial(match.group(1)!);
         String difference = match.group(2)!;
-        String secondDigit = match.group(3)!;
+        String secondDigit = _digitInitial(match.group(3)!);
         return '$firstDigit - $difference = $secondDigit\n';
       }
-    } else if (condition.contains("is the same as")) {
+    }
+
+    else if (condition.contains("is the same as")) {
       RegExp exp = RegExp(r"My (\w+) digit is the same as my (\w+) digit");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
-        String secondDigit = match.group(2)!;
+        String firstDigit = _digitInitial(match.group(1)!);
+        String secondDigit = _digitInitial(match.group(2)!);
         return '$firstDigit = $secondDigit\n';
       }
-    } else if (condition.contains("times bigger than")) {
+    }
+
+    else if (condition.contains("times bigger than")) {
       RegExp exp = RegExp(r"My (\w+) digit is (\d+) times bigger than my (\w+) digit");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
+        String firstDigit = _digitInitial(match.group(1)!);
         String times = match.group(2)!;
-        String secondDigit = match.group(3)!;
+        String secondDigit = _digitInitial(match.group(3)!);
         return '$firstDigit = $times x $secondDigit\n';
       }
-    } else if (condition.contains("product of my") && condition.contains("equals the square of my")) {
+    }
+
+    else if (condition.contains("product of my") && condition.contains("equals the square of my")) {
       RegExp exp = RegExp(r"The product of my (\w+) and (\w+) digits equals the square of my (\w+) digit");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
-        String secondDigit = match.group(2)!;
-        String thirdDigit = match.group(3)!;
+        String firstDigit = _digitInitial(match.group(1)!);
+        String secondDigit = _digitInitial(match.group(2)!);
+        String thirdDigit = _digitInitial(match.group(3)!);
         return '$firstDigit x $secondDigit = $thirdDigit^2\n';
       }
-    }  else if (condition.contains("digit divided by the sum of my")) {
+    }
+
+    else if (condition.contains("digit divided by the sum of my")) {
       RegExp exp = RegExp(r"My (\w+) digit divided by the sum of my (\w+) and (\w+) digits gives (\d+)");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String dividendDigit = match.group(1)!;
-        String firstSummand = match.group(2)!;
-        String secondSummand = match.group(3)!;
+        String dividendDigit = _digitInitial(match.group(1)!);
+        String firstSummand = _digitInitial(match.group(2)!);
+        String secondSummand = _digitInitial(match.group(3)!);
         String quotient = match.group(4)!;
         return '$dividendDigit / ($firstSummand + $secondSummand) = $quotient\n';
       }
-    } else if (condition.contains("Connecting my") && condition.contains("dividing by my")) {
+    }
+
+    else if (condition.contains("Connecting my") && condition.contains("dividing by my")) {
       RegExp exp = RegExp(r"Connecting my (\w+) and (\w+) digits and dividing by my (\w+) digit gives (\d+)");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
-        String secondDigit = match.group(2)!;
-        String divisor = match.group(3)!;
+        String firstDigit = _digitInitial(match.group(1)!);
+        String secondDigit = _digitInitial(match.group(2)!);
+        String divisor = _digitInitial(match.group(3)!);
         String result = match.group(4)!;
-        return '$firstDigit|$secondDigit / $divisor = $result\n';
+        return '((10*$firstDigit)+($secondDigit)) / $divisor = $result\n';
       }
-    } else if (condition.contains("average of my") && condition.contains("is equal to my")) {
+    }
+
+    else if (condition.contains("average of my") && condition.contains("is equal to my")) {
       RegExp exp = RegExp(r"The average of my (\w+) and (\w+) digits is equal to my (\w+) digit");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigit = match.group(1)!;
-        String secondDigit = match.group(2)!;
-        String averageDigit = match.group(3)!;
+        String firstDigit = _digitInitial(match.group(1)!);
+        String secondDigit = _digitInitial(match.group(2)!);
+        String averageDigit = _digitInitial(match.group(3)!);
         return 'avg($firstDigit, $secondDigit) = $averageDigit\n';
       }
-    } else if (condition.contains("product of my") && condition.contains("is equal to the sum of my")) {
+    }
+
+    else if (condition.contains("product of my") && condition.contains("is equal to the sum of my")) {
       RegExp exp = RegExp(r"The product of my (\w+) and (\w+) digits is equal to the sum of my (\w+) and (\w+) digits");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstMultiplier = match.group(1)!;
-        String secondMultiplier = match.group(2)!;
-        String firstAddend = match.group(3)!;
-        String secondAddend = match.group(4)!;
+        String firstMultiplier = _digitInitial(match.group(1)!);
+        String secondMultiplier = _digitInitial(match.group(2)!);
+        String firstAddend = _digitInitial(match.group(3)!);
+        String secondAddend = _digitInitial(match.group(4)!);
         return '$firstMultiplier x $secondMultiplier = $firstAddend + $secondAddend\n';
       }
-    } else if (condition.contains("two numbers are complementary")) {
+    }
+
+    else if (condition.contains("two numbers are complementary")) {
       RegExp exp = RegExp(r"If you connect my (\w+) and (\w+) digits, and then my (\w+) and (\w+) digits, the two numbers are complementary");
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String firstDigitA = match.group(1)!;
-        String secondDigitA = match.group(2)!;
-        String firstDigitB = match.group(3)!;
-        String secondDigitB = match.group(4)!;
-        return '$firstDigitA|$secondDigitA + $firstDigitB|$secondDigitB = 90\n';
+        String firstDigitA = _digitInitial(match.group(1)!);
+        String secondDigitA = _digitInitial(match.group(2)!);
+        String firstDigitB = _digitInitial(match.group(3)!);
+        String secondDigitB = _digitInitial(match.group(4)!);
+        return '((10*$firstDigitA)+($secondDigitA)) + ((10*$firstDigitB)+($secondDigitB)) = 90\n';
       }
     }
 
@@ -254,8 +272,8 @@ class RiddleGenerator {
       RegExp exp = RegExp(r'If my (\w+) digit was raised to the power of my (\w+) digit, the result would be (\d+) digits\.');
       Match? match = exp.firstMatch(condition);
       if (match != null) {
-        String baseDigit = match.group(1)!;
-        String exponentDigit = match.group(2)!;
+        String baseDigit = _digitInitial(match.group(1)!);
+        String exponentDigit = _digitInitial(match.group(2)!);
         String digitsCount = match.group(3)!;
         return '$baseDigit^$exponentDigit = $digitsCount digits\n';
       }
@@ -267,12 +285,33 @@ class RiddleGenerator {
 
   // Usage
   List<String> digitNames = [
-    "o",
-    "t",
-    "h",
-    "T",
-    "tT",
-    "hT",
-    "m"
+    "ones",
+    "tens",
+    "hundreds",
+    "thousands",
+    "tenThousands",
+    "hundredThousands",
+    "millions"
   ];
+
+  String _digitInitial(String digitName) {
+    switch (digitName) {
+      case 'ones':
+        return 'o';
+      case 'tens':
+        return 't';
+      case 'hundreds':
+        return 'h';
+      case 'thousands':
+        return 'T';
+      case 'tenThousands':
+        return 'tT';
+      case 'hundredThousands':
+        return 'hT';
+      case 'millions':
+        return 'm';
+      default:
+        return digitName[0];  // Return the first letter as default
+    }
+  }
 }
