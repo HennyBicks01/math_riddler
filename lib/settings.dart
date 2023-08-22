@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 class SettingsPage extends StatefulWidget {
   final Function(int) onDigitsChanged;
   final Function(double) onFontSizeChanged;
+  final Function(bool) onChangeRiddleTextSetting; // Added callback for riddle text setting
 
-  const SettingsPage({Key? key, required this.onDigitsChanged, required this.onFontSizeChanged}) : super(key: key);
+  const SettingsPage({
+    Key? key,
+    required this.onDigitsChanged,
+    required this.onFontSizeChanged,
+    required this.onChangeRiddleTextSetting, // constructor parameter for new callback
+  }) : super(key: key);
 
   @override
   SettingsPageState createState() => SettingsPageState();
@@ -13,6 +19,7 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   double _currentSliderValue = 3;  // Default value set to 3 digits
   double _fontSize = 20; // 1. Default font size
+  bool _changeRiddleText = false;  // Setting for riddle text
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +51,6 @@ class SettingsPageState extends State<SettingsPage> {
             ),
             Text('Current selection: ${_currentSliderValue.round()} digits'),
 
-            // 2. Add the Slider for font size
             const SizedBox(height: 20),
             const Text(
               'Font Size',
@@ -64,6 +70,19 @@ class SettingsPageState extends State<SettingsPage> {
               },
             ),
             Text('Current font size: ${_fontSize.round()}'),
+
+            // Adding the switch for the riddle text change
+            const SizedBox(height: 20),
+            SwitchListTile(
+              title: const Text('Change Riddle Text'),
+              value: _changeRiddleText,
+              onChanged: (value) {
+                setState(() {
+                  _changeRiddleText = value;
+                });
+                widget.onChangeRiddleTextSetting(value); // Inform the parent about the change
+              },
+            )
           ],
         ),
       ),

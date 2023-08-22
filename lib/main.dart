@@ -46,6 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String _currentRiddleDisplay = '';
   double _fontSize = 20;  // default font size
   final List<String> _wrongGuesses = [];
+  bool _changeRiddleText = false;
+
 
   final riddleGenerator = RiddleGenerator();
 
@@ -89,9 +91,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _generateRiddle() {
-    final RiddleResult result = riddleGenerator.generateRiddle();
+    final RiddleResult result = riddleGenerator.generateRiddle(isShorthandMode: _changeRiddleText);
     _randomNumber = result.number;
     _riddle = result.riddle;
+
     print(_randomNumber);
     print(_riddle);
 
@@ -101,6 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     setState(() {});
   }
+
 
   void _typeOutRiddle() async {
     for (int i = 0; i < _riddle.length; i++) {
@@ -251,8 +255,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                     MaterialPageRoute(
                                       builder: (context) => SettingsPage(
                                         onDigitsChanged: _updateDigitsValue,
-                                        onFontSizeChanged: (newSize) {
-                                          _updateFontSize(newSize);
+                                        onFontSizeChanged: _updateFontSize,
+                                        onChangeRiddleTextSetting: (bool value) {
+                                          setState(() {
+                                            _changeRiddleText = value;
+                                          });
                                         },
                                       ),
                                     ),
