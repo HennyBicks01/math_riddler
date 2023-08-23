@@ -4,13 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsPage extends StatefulWidget {
   final Function(int) onDigitsChanged;
   final Function(double) onFontSizeChanged;
-  final Function(bool) onChangeRiddleTextSetting; // Added callback for riddle text setting
+  final Function(bool) onChangeRiddleTextSetting;
+  final Function(double) onAnimationSpeedChanged;// Added callback for riddle text setting
 
   const SettingsPage({
     Key? key,
     required this.onDigitsChanged,
     required this.onFontSizeChanged,
-    required this.onChangeRiddleTextSetting, // constructor parameter for new callback
+    required this.onChangeRiddleTextSetting,
+    required this.onAnimationSpeedChanged,// constructor parameter for new callback
   }) : super(key: key);
 
   @override
@@ -47,10 +49,9 @@ class SettingsPageState extends State<SettingsPage> {
       prefs.setDouble(key, value);
     } else if (value is bool) {
       prefs.setBool(key, value);
-    } else if (key == 'animation_speed' && value is double) {
-      prefs.setDouble(key, value);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,21 +118,22 @@ class SettingsPageState extends State<SettingsPage> {
             Slider(
               value: _animationSpeed,
               min: 0,
-              max: 100,  // max speed is 5 seconds, you can change this
-              divisions: 10,
+              max: 100,  // max speed is 100 seconds, you can change this
+              divisions: 20,  // Divided it by 5 to make it similar to the digits slider
               label: _animationSpeed == 0 ? 'Instant' : _animationSpeed.toStringAsFixed(1),
               onChanged: (double value) {
                 setState(() {
                   _animationSpeed = value;
                 });
-                // If you have an external callback for this, call it here.
+                widget.onAnimationSpeedChanged(_animationSpeed);
                 _saveSettings('animation_speed', _animationSpeed);
               },
             ),
             Text(
-              'Current animation speed: ${_animationSpeed == 0 ? "Instant" : _animationSpeed.toStringAsFixed(1)}',
+              'Current animation speed: ${_animationSpeed == 0 ? "Instant" : _animationSpeed.toStringAsFixed(1)} seconds',
               style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
             ),
+
 
 
             // Adding the switch for the riddle text change

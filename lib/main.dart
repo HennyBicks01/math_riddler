@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double _fontSize = 20;  // default font size
   final List<String> _wrongGuesses = [];
   bool _changeRiddleText = true;
-  final double _animationSpeed = 50; // Default to 1 second
+  double _animationSpeed = 50; // Default to 1 second
 
 
 
@@ -99,6 +99,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _updateAnimationSpeed(double newSpeed) {
+    setState(() {
+      _animationSpeed = newSpeed;
+    });
+  }
+
 
   void _removeLastDigit() {
     if (_currentInput.isNotEmpty) {
@@ -136,6 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_animationSpeed == 0.0 || _animationSpeed.toString() == 'Instant') { // "0" represents instant in this example
       setState(() {
         _currentRiddleDisplay = _riddle;
+        print('animations speed is $_animationSpeed');
       });
     } else {
       for (int i = 0; i < _riddle.length; i++) {
@@ -144,6 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
           _currentRiddleDisplay += _riddle[i];
         });
       }
+      print('animations speed is $_animationSpeed');
     }
   }
 
@@ -292,6 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       builder: (context) => SettingsPage(
                                         onDigitsChanged: _updateDigitsValue,
                                         onFontSizeChanged: _updateFontSize,
+                                        onAnimationSpeedChanged: _updateAnimationSpeed,
                                         onChangeRiddleTextSetting: (bool value) {
                                           setState(() {
                                             _changeRiddleText = value;
