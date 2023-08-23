@@ -189,7 +189,7 @@ class RiddleGenerator {
         String secondDigit = _digitInitial(match.group(2)!);
         String divisor = _digitInitial(match.group(3)!);
         String result = match.group(4)!;
-        return '((10*$firstDigit)+($secondDigit)) / $divisor = $result\n';
+        return '$firstDigit:$secondDigit / $divisor = $result\n';
       }
     }
 
@@ -224,7 +224,7 @@ class RiddleGenerator {
         String secondDigitA = _digitInitial(match.group(2)!);
         String firstDigitB = _digitInitial(match.group(3)!);
         String secondDigitB = _digitInitial(match.group(4)!);
-        return '((10*$firstDigitA)+($secondDigitA)) + ((10*$firstDigitB)+($secondDigitB)) = 90\n';
+        return '$firstDigitA:$secondDigitA + $firstDigitB:$secondDigitB = 90\n';
       }
     }
 
