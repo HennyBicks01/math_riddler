@@ -179,6 +179,29 @@ class RiddleConditionChecker {
       return int.parse('$digit1$digit2') + int.parse('$digit3$digit4') == 90;
     }
 
+    // Quadratic formula
+    RegExp quadraticRegex = RegExp(
+        r"Using my (\w+), (\w+), and (\w+) digits as coefficients in a quadratic equation, one solution is my (\w+) digit."
+    );
+    Match? quadraticMatch = quadraticRegex.firstMatch(condition);
+    if (quadraticMatch != null) {
+      int a = digits[nameToIndex[quadraticMatch.group(1)!]!];
+      int b = digits[nameToIndex[quadraticMatch.group(2)!]!];
+      int c = digits[nameToIndex[quadraticMatch.group(3)!]!];
+      int expectedSolution = digits[nameToIndex[quadraticMatch.group(4)!]!];
+
+      double determinant = (b * b) - (4 * a * c).toDouble();
+      if (determinant >= 0) {
+        double x1 = (-b + sqrt(determinant)) / (2 * a);
+        double x2 = (-b - sqrt(determinant)) / (2 * a);
+
+        if (x1 == expectedSolution.toDouble() || x2 == expectedSolution.toDouble()) {
+          return true;
+        }
+      }
+    }
+
+
 
     return false;
   }

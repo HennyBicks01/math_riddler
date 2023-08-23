@@ -114,6 +114,19 @@ class ShortHandConditions{
       }
     }
 
+    //Quadratic Formula
+    else if (condition.contains("Using my") && condition.contains("coefficients in a quadratic equation")) {
+      RegExp exp = RegExp(r"Using my (\w+), (\w+), and (\w+) digits as coefficients in a quadratic equation, one solution is my (\w+) digit.");
+      Match? match = exp.firstMatch(condition);
+      if (match != null) {
+        String aDigit = _digitInitial(match.group(1)!);
+        String bDigit = _digitInitial(match.group(2)!);
+        String cDigit = _digitInitial(match.group(3)!);
+        String solutionDigit = _digitInitial(match.group(4)!);
+        return '$aDigit x^2 + $bDigit x + $cDigit; x = $solutionDigit\n';
+      }
+    }
+
     // Sum of all numbers
     else if (condition.contains("The sum of my digits")) {
       RegExp exp = RegExp(r'The sum of my digits is (\d+)\.');

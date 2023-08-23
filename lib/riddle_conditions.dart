@@ -128,6 +128,17 @@ class RiddleConditions {
               tempConditions4.add("If you connect my ${digitNames[i]} and ${digitNames[j]} digits, and then my ${digitNames[k]} and ${digitNames[l]} digits, the two numbers are complementary");
             }
 
+            // Quadratic formula condition
+            double determinant = (digits[j] * digits[j]) - (4 * digits[i] * digits[k]).toDouble();
+            if (determinant >= 0) {  // Make sure determinant is non-negative
+              double x1 = (-digits[j] + sqrt(determinant)) / (2 * digits[i]);
+              double x2 = (-digits[j] - sqrt(determinant)) / (2 * digits[i]);
+
+              if (x1 == digits[l].toDouble() || x2 == digits[l].toDouble()) {
+                tempConditions4.add("Using my ${digitNames[i]}, ${digitNames[j]}, and ${digitNames[k]} digits as coefficients in a quadratic equation, one solution is my ${digitNames[l]} digit.");
+              }
+            }
+
             // randomly select one and add it to tempConditions.
             if (tempConditions4.isNotEmpty) {
               int randomIndex = _random.nextInt(tempConditions4.length);
