@@ -49,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _changeRiddleText = false;
 
 
+
   final riddleGenerator = RiddleGenerator();
 
   @override
