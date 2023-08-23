@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 import 'package:mathriddles/riddle_generator.dart';
 import 'settings.dart';
@@ -21,6 +23,10 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(
             fontFamily: 'TI84Font',
             fontSize: 20,
+          ),
+          bodySmall: TextStyle(
+            fontFamily: 'TI84Font',
+            fontSize: 15,
           ),
         ),
       ),
@@ -55,7 +61,18 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _loadSettings();   // <-- Load your settings from SharedPreferences
     _generateRiddle();
+  }
+
+  void _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _fontSize = prefs.getDouble('font_size') ?? 20;
+      _changeRiddleText = prefs.getBool('change_riddle_text') ?? true;
+      // Load any other settings you have here
+    });
   }
 
   String _currentInput = ""; // To store the number being input by the user.
@@ -251,8 +268,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               // Menu Icon (Settings)
                               IconButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
+                                onPressed: () async {   // <-- Make this function async
+                                  await Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => SettingsPage(
                                         onDigitsChanged: _updateDigitsValue,
@@ -265,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       ),
                                     ),
                                   );
+                                  _loadSettings();  // <-- Load your settings again
                                 },
                                 icon: const Icon(Icons.menu, color: CupertinoColors.inactiveGray),
                               ),

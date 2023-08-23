@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   final Function(int) onDigitsChanged;
@@ -22,6 +23,30 @@ class SettingsPageState extends State<SettingsPage> {
   bool _changeRiddleText = false;  // Setting for riddle text
 
   @override
+  void initState() {
+    super.initState();
+    _loadSettings(); // Load saved settings
+  }
+
+  _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentSliderValue = prefs.getDouble('digits_slider') ?? 3;
+      _fontSize = prefs.getDouble('font_size') ?? 20;
+      _changeRiddleText = prefs.getBool('change_riddle_text') ?? false;
+    });
+  }
+
+  _saveSettings(String key, dynamic value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value is double) {
+      prefs.setDouble(key, value);
+    } else if (value is bool) {
+      prefs.setBool(key, value);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -34,7 +59,7 @@ class SettingsPageState extends State<SettingsPage> {
           children: <Widget>[
             const Text(
               'Number of Digits for Riddles',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 15),
             ),
             Slider(
               value: _currentSliderValue,
@@ -47,14 +72,17 @@ class SettingsPageState extends State<SettingsPage> {
                   _currentSliderValue = value;
                 });
                 widget.onDigitsChanged(_currentSliderValue.round());
+                _saveSettings('digits_slider', _currentSliderValue);
               },
             ),
-            Text('Current selection: ${_currentSliderValue.round()} digits'),
+            Text('Current selection: ${_currentSliderValue.round()} digits',
+              style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+            ),
 
             const SizedBox(height: 20),
             const Text(
               'Font Size',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 15),
             ),
             Slider(
               value: _fontSize,
@@ -67,20 +95,25 @@ class SettingsPageState extends State<SettingsPage> {
                   _fontSize = value;
                 });
                 widget.onFontSizeChanged(_fontSize);
+                _saveSettings('font_size', _fontSize);
               },
             ),
-            Text('Current font size: ${_fontSize.round()}'),
+            Text('Current font size: ${_fontSize.round()}',
+              style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+            ),
 
             // Adding the switch for the riddle text change
             const SizedBox(height: 20),
             SwitchListTile(
-              title: const Text('Change Riddle Text'),
+              title: const Text('Abbreviated Text:',
+                  style: TextStyle( fontFamily:'TI84Font', fontSize: 15)),
               value: _changeRiddleText,
               onChanged: (value) {
                 setState(() {
                   _changeRiddleText = value;
                 });
-                widget.onChangeRiddleTextSetting(value); // Inform the parent about the change
+                widget.onChangeRiddleTextSetting(value);
+                _saveSettings('change_riddle_text', _changeRiddleText);
               },
             )
           ],
