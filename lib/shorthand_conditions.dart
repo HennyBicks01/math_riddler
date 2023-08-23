@@ -167,6 +167,11 @@ class ShortHandConditions{
       return 'Fibonacci\n';
     }
 
+    // Fibonacci number check
+    else if (condition.contains("I am a prime number.")) {
+      return 'Prime\n';
+    }
+
     else if (condition.contains("If my") && condition.contains("raised to the power of my")) {
       RegExp exp = RegExp(r'If my (\w+) digit was raised to the power of my (\w+) digit, the result would be (\d+) digits\.');
       Match? match = exp.firstMatch(condition);

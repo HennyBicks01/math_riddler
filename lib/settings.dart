@@ -21,6 +21,8 @@ class SettingsPageState extends State<SettingsPage> {
   double _currentSliderValue = 3;  // Default value set to 3 digits
   double _fontSize = 20; // 1. Default font size
   bool _changeRiddleText = false;  // Setting for riddle text
+  double _animationSpeed = 50; // Default to 1 second
+
 
   @override
   void initState() {
@@ -34,6 +36,8 @@ class SettingsPageState extends State<SettingsPage> {
       _currentSliderValue = prefs.getDouble('digits_slider') ?? 3;
       _fontSize = prefs.getDouble('font_size') ?? 20;
       _changeRiddleText = prefs.getBool('change_riddle_text') ?? false;
+      _animationSpeed = prefs.getDouble('animation_speed') ?? 50.0;
+
     });
   }
 
@@ -43,6 +47,8 @@ class SettingsPageState extends State<SettingsPage> {
       prefs.setDouble(key, value);
     } else if (value is bool) {
       prefs.setBool(key, value);
+    } else if (key == 'animation_speed' && value is double) {
+      prefs.setDouble(key, value);
     }
   }
 
@@ -79,6 +85,7 @@ class SettingsPageState extends State<SettingsPage> {
               style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
             ),
 
+
             const SizedBox(height: 20),
             const Text(
               'Font Size',
@@ -101,6 +108,31 @@ class SettingsPageState extends State<SettingsPage> {
             Text('Current font size: ${_fontSize.round()}',
               style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
             ),
+
+            const SizedBox(height: 20),
+            const Text(
+              'Animation Speed (seconds)',
+              style: TextStyle(fontSize: 15),
+            ),
+            Slider(
+              value: _animationSpeed,
+              min: 0,
+              max: 100,  // max speed is 5 seconds, you can change this
+              divisions: 10,
+              label: _animationSpeed == 0 ? 'Instant' : _animationSpeed.toStringAsFixed(1),
+              onChanged: (double value) {
+                setState(() {
+                  _animationSpeed = value;
+                });
+                // If you have an external callback for this, call it here.
+                _saveSettings('animation_speed', _animationSpeed);
+              },
+            ),
+            Text(
+              'Current animation speed: ${_animationSpeed == 0 ? "Instant" : _animationSpeed.toStringAsFixed(1)}',
+              style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+            ),
+
 
             // Adding the switch for the riddle text change
             const SizedBox(height: 20),

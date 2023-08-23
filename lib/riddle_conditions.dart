@@ -181,6 +181,12 @@ class RiddleConditions {
       conditions.add("I'm in the Fibonacci sequence.");
     }
 
+    // Prime Number Check
+    int numberFormed2 = int.parse(digits.join());
+    if (isPrime(numberFormed2)) {
+      conditions.add("I am a prime number.");
+    }
+
     return conditions;
   }
 
@@ -224,6 +230,22 @@ class RiddleConditions {
       c = a + b;
     }
     return false;
+  }
+
+  bool isPrime(int n) {
+    if (n <= 1) return false;
+    if (n <= 3) return true;
+
+    // This is checked so that we can skip
+    // middle five numbers in below loop
+    if (n % 2 == 0 || n % 3 == 0) return false;
+
+    int i = 5;
+    while (i * i <= n) {
+      if (n % i == 0 || n % (i + 2) == 0) return false;
+      i += 6;
+    }
+    return true;
   }
 
 }

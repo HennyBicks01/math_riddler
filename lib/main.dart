@@ -53,6 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double _fontSize = 20;  // default font size
   final List<String> _wrongGuesses = [];
   bool _changeRiddleText = true;
+  final double _animationSpeed = 50; // Default to 1 second
 
 
 
@@ -132,13 +133,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void _typeOutRiddle() async {
-    for (int i = 0; i < _riddle.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));  // Delay for 50ms for each character.
+    if (_animationSpeed == 0.0 || _animationSpeed.toString() == 'Instant') { // "0" represents instant in this example
       setState(() {
-        _currentRiddleDisplay += _riddle[i];
+        _currentRiddleDisplay = _riddle;
       });
+    } else {
+      for (int i = 0; i < _riddle.length; i++) {
+        await Future.delayed(Duration(milliseconds: (_animationSpeed).toInt()));  // The delay now factors in the _animationSpeedSlider
+        setState(() {
+          _currentRiddleDisplay += _riddle[i];
+        });
+      }
     }
   }
+
 
   void _updateDigitsValue(int newValue) {
     riddleGenerator.minDigits = newValue;

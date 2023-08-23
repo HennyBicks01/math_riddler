@@ -54,6 +54,12 @@ class RiddleConditionChecker {
       return isFibonacci(numberFormed);
     }
 
+    // Prime number check
+    int numberFormed2 = int.parse(digits.join());
+    if (condition.contains("I'm a prime number.")) {
+      return _isPrime(numberFormed2);
+    }
+
     ///Two Digit Functions
     // Power Function for two different digits
     RegExp powerConditionRegex = RegExp(
@@ -257,6 +263,22 @@ class RiddleConditionChecker {
       b = temp + b;
     }
     return false;
+  }
+
+  /// Checks if number is prime
+  bool _isPrime(int num) {
+    if (num <= 1) return false;
+    if (num <= 3) return true;
+
+    if (num % 2 == 0 || num % 3 == 0) return false;
+
+    int i = 5;
+    while (i * i <= num) {
+      if (num % i == 0 || num % (i + 2) == 0) return false;
+      i += 6;
+    }
+
+    return true;
   }
 
 }
