@@ -71,8 +71,15 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _fontSize = prefs.getDouble('font_size') ?? 20;
       _changeRiddleText = prefs.getBool('change_riddle_text') ?? true;
+      _eloScore = prefs.getInt('elo_score') ?? 1200;  // Use a default value of 1200 if not found
+
       // Load any other settings you have here
     });
+  }
+
+  void _saveEloScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('elo_score', _eloScore);
   }
 
   String _currentInput = ""; // To store the number being input by the user.
@@ -143,11 +150,13 @@ class _MyHomePageState extends State<MyHomePage> {
       _flashBackground(Colors.green);
       _eloScore += 15;
       _generateRiddle();
-      _wrongGuesses.clear();  // Clear the list of wrong guesses upon correct answer.
+      _wrongGuesses.clear();
+      _saveEloScore();// Clear the list of wrong guesses upon correct answer.
     } else {
       _flashBackground(Colors.red);
       _eloScore -= 15;
       _wrongGuesses.add(_currentInput);
+      _saveEloScore();
     }
     setState(() {
       _currentInput = ""; // This line clears the input after Submit is clicked.
@@ -170,7 +179,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void _skipRiddle() {
     _eloScore -= 10;
     _generateRiddle();
-    _wrongGuesses.clear();  // Clear the list of wrong guesses when skipping the riddle.
+    _wrongGuesses.clear();
+    _saveEloScore();// Clear the list of wrong guesses when skipping the riddle.
   }
 
 
