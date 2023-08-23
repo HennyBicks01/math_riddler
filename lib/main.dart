@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _currentRiddleDisplay = '';
   double _fontSize = 20;  // default font size
   final List<String> _wrongGuesses = [];
-  bool _changeRiddleText = false;
+  bool _changeRiddleText = true;
 
 
 

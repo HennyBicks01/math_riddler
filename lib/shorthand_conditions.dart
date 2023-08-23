@@ -8,7 +8,7 @@ class ShortHandConditions{
         String firstDigit = _digitInitial(match.group(1)!);
         String difference = match.group(2)!;
         String secondDigit = _digitInitial(match.group(3)!);
-        return '$firstDigit + $difference = $secondDigit\n';
+        return '$firstDigit - $difference = $secondDigit\n';
       }
     }
 
@@ -19,7 +19,7 @@ class ShortHandConditions{
         String firstDigit = _digitInitial(match.group(1)!);
         String difference = match.group(2)!;
         String secondDigit = _digitInitial(match.group(3)!);
-        return '$firstDigit - $difference = $secondDigit\n';
+        return '$firstDigit + $difference = $secondDigit\n';
       }
     }
 
