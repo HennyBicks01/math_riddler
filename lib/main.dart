@@ -48,13 +48,14 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _randomNumber;
   late String _riddle;
   int _eloScore = 1200;
-  Color _backgroundColor = Colors.grey[200]!;  // Changed to a calculator grayish tone.
+  Color _backgroundColor = Colors
+      .grey[200]!; // Changed to a calculator grayish tone.
   String _currentRiddleDisplay = '';
-  double _fontSize = 20;  // default font size
+  double _fontSize = 20; // default font size
   final List<String> _wrongGuesses = [];
   bool _changeRiddleText = true;
   double _animationSpeed = 50; // Default to 1 second
-
+  bool _isRiddleBeingDisplayed = false;
 
 
   final riddleGenerator = RiddleGenerator();
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _loadSettings();   // <-- Load your settings from SharedPreferences
+    _loadSettings(); // <-- Load your settings from SharedPreferences
     _generateRiddle();
   }
 
@@ -72,7 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _fontSize = prefs.getDouble('font_size') ?? 20;
       _changeRiddleText = prefs.getBool('change_riddle_text') ?? true;
-      _eloScore = prefs.getInt('elo_score') ?? 1200;  // Use a default value of 1200 if not found
+      _eloScore = prefs.getInt('elo_score') ??
+          1200; // Use a default value of 1200 if not found
 
       // Load any other settings you have here
     });
@@ -123,7 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _generateRiddle() {
-    final RiddleResult result = riddleGenerator.generateRiddle(isShorthandMode: _changeRiddleText);
+    final RiddleResult result = riddleGenerator.generateRiddle(
+        isShorthandMode: _changeRiddleText);
     _randomNumber = result.number;
     _riddle = result.riddle;
 
@@ -139,26 +142,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void _typeOutRiddle() async {
-    if (_animationSpeed == 0.0 || _animationSpeed.toString() == 'Instant') { // "0" represents instant in this example
+    if (_animationSpeed == 0.0 || _animationSpeed.toString() ==
+        'Instant') { // "0" represents instant in this example
       setState(() {
         _currentRiddleDisplay = _riddle;
-        print('animations speed is $_animationSpeed');
+        _isRiddleBeingDisplayed = false;
       });
     } else {
+      _isRiddleBeingDisplayed = true;
       for (int i = 0; i < _riddle.length; i++) {
-        await Future.delayed(Duration(milliseconds: (_animationSpeed).toInt()));  // The delay now factors in the _animationSpeedSlider
+        await Future.delayed(Duration(milliseconds: (_animationSpeed)
+            .toInt())); // The delay now factors in the _animationSpeedSlider
         setState(() {
           _currentRiddleDisplay += _riddle[i];
         });
       }
-      print('animations speed is $_animationSpeed');
+      _isRiddleBeingDisplayed = false;
     }
   }
 
 
   void _updateDigitsValue(int newValue) {
     riddleGenerator.minDigits = newValue;
-    riddleGenerator.maxDigits = newValue;  // If you want to set both the min and max to the same value.
+    riddleGenerator.maxDigits =
+        newValue; // If you want to set both the min and max to the same value.
   }
 
   void _checkAnswer() {
@@ -167,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _eloScore += 15;
       _generateRiddle();
       _wrongGuesses.clear();
-      _saveEloScore();// Clear the list of wrong guesses upon correct answer.
+      _saveEloScore(); // Clear the list of wrong guesses upon correct answer.
     } else {
       _flashBackground(Colors.red);
       _eloScore -= 15;
@@ -196,232 +203,263 @@ class _MyHomePageState extends State<MyHomePage> {
     _eloScore -= 10;
     _generateRiddle();
     _wrongGuesses.clear();
-    _saveEloScore();// Clear the list of wrong guesses when skipping the riddle.
+    _saveEloScore(); // Clear the list of wrong guesses when skipping the riddle.
   }
 
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     Widget buildKey(int index) {
       Color buttonColor;
-      Color textColor = Colors.black;  // Default text color to black for most buttons.
+      Color textColor = Colors
+          .black; // Default text color to black for most buttons.
 
       switch (index) {
         case 3:
           return GridTile(
-            footer: Container(color: Colors.transparent),  // Empty transparent container for additional space
+            footer: Container(color: Colors.transparent),
             child: ElevatedButton(
-              onPressed: _checkAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+              onPressed: _isRiddleBeingDisplayed ? null : _checkAnswer,
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (states) => Colors.green,
+                ),
               ),
-              child: const Text('>', style: TextStyle(fontSize: 20, color: Colors.white)),
+              child: const Text(
+                  '>', style: TextStyle(fontSize: 20, color: Colors.white)),
             ),
           );
         case 12:
           buttonColor = Colors.orange;
-          return ElevatedButton(
-            onPressed: _removeLastDigit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonColor,
-            ),
-            child: Text('<', style: TextStyle(fontSize: 20, color: textColor)),
-          );
+          break;
         case 13:
           buttonColor = Colors.white;
-          return ElevatedButton(
-            onPressed: () => _appendToInput('0'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonColor,
-            ),
-            child: Text('0', style: TextStyle(fontSize: 20, color: textColor)),
-          );
+          break;
         case 14:
           buttonColor = Colors.orange;
-          return ElevatedButton(
-            onPressed: _clearInput,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonColor,
-            ),
-            child: Text('C', style: TextStyle(fontSize: 20, color: textColor)),
-          );
+          break;
         case 15:
           buttonColor = Colors.red;
-          textColor = Colors.white;  // For red button, white text may be more legible.
-          return ElevatedButton(
-            onPressed: () {
-              _clearInput();
-              _skipRiddle();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonColor,
-            ),
-            child: Text('>>', style: TextStyle(fontSize: 20, color: textColor)),
-          );
+          textColor = Colors.white;
+          break;
         case 7:
         case 11:
-          return Container(color: Colors.transparent); // Empty transparent containers
+          return Container(color: Colors.transparent);
         default:
           buttonColor = Colors.white;
-          textColor = Colors.black;  // Ensuring that number buttons have black text color.
-          return ElevatedButton(
-            onPressed: () =>
-                _appendToInput('${(index % 4) + 1 + (index ~/ 4) * 3}'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: buttonColor,
-            ),
-            child: Text('${(index % 4) + 1 + (index ~/ 4) * 3}', style: TextStyle(fontSize: 20, color: textColor)),
-          );
+          textColor = Colors.black;
       }
+
+      return ElevatedButton(
+        onPressed: _isRiddleBeingDisplayed ? null : () {
+          switch (index) {
+            case 12:
+              _removeLastDigit();
+              break;
+            case 13:
+              _appendToInput('0');
+              break;
+            case 14:
+              _clearInput();
+              break;
+            case 15:
+              _clearInput();
+              _skipRiddle();
+              break;
+            default:
+              _appendToInput('${(index % 4) + 1 + (index ~/ 4) * 3}');
+          }
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                (states) => buttonColor,
+          ),
+          foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                (states) => textColor,
+          ),
+        ),
+        child: Text(
+          index == 12
+              ? '<'
+              : index == 13
+              ? '0'
+              : index == 14
+              ? 'C'
+              : index == 15
+              ? '>>'
+              : '${(index % 4) + 1 + (index ~/ 4) * 3}',
+          style: TextStyle(fontSize: 20, color: textColor),
+        ),
+      );
     }
 
-    return Scaffold(
-        body: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            color: _backgroundColor,
-            child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Stack(
-                    children: <Widget>[
-                      Column(
-                        children: [
+      return Scaffold(
+          body: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              color: _backgroundColor,
+              child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Stack(
+                      children: <Widget>[
+                        Column(
+                          children: [
 
-                          // New Row for ELO Score and Menu Icon
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,  // Space out the children.
-                            children: [
-                              // Menu Icon (Settings)
-                              IconButton(
-                                onPressed: () async {   // <-- Make this function async
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => SettingsPage(
-                                        onDigitsChanged: _updateDigitsValue,
-                                        onFontSizeChanged: _updateFontSize,
-                                        onAnimationSpeedChanged: _updateAnimationSpeed,
-                                        onChangeRiddleTextSetting: (bool value) {
-                                          setState(() {
-                                            _changeRiddleText = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                  _loadSettings();  // <-- Load your settings again
-                                },
-                                icon: const Icon(Icons.menu, color: CupertinoColors.inactiveGray),
-                              ),
-
-                              // Elo Score
-                              Container(
-                                padding: const EdgeInsets.all(4.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  'Elo: $_eloScore',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-
-
-                          // 3. Riddle positioned above the keypad wrapped in a "display box".
-                          Expanded(
-                            flex: 7,
-                            child: Center(
-                              child: Container(
-                                width: screenWidth * 0.85,
-                                height: screenHeight * 0.53,
-                                padding: const EdgeInsets.all(20.0),
-                                decoration: BoxDecoration(
-                                    color: const Color(0xFFA8B6A0),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 5.0,
-                                          offset: Offset(2, 2)
-                                      ),
-                                    ]
-                                ),
-
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: SingleChildScrollView(
-                                        reverse: true,  // Makes the content start from the bottom
-                                        scrollDirection: Axis.vertical,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              _currentRiddleDisplay,
-                                              style: TextStyle(fontSize: _fontSize),
-                                              textAlign: TextAlign.right,
-                                            ),
-                                            ..._wrongGuesses.map((wrongGuess) => Text(
-                                              wrongGuess,
-                                              style: TextStyle(fontSize: _fontSize, color: Colors.red),
-                                              textAlign: TextAlign.right,
-                                            )).toList(),
-                                            Text(
-                                              _currentInput,
-                                              style: TextStyle(
-                                                  fontSize: _fontSize),
-                                              textAlign: TextAlign.right,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-
-                          // Keypad
-                          Expanded(
-                            flex: 4,
-                            child: Stack(
+                            // New Row for ELO Score and Menu Icon
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // Space out the children.
                               children: [
-                                GridView.builder(
-                                  padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: screenWidth / (screenHeight / 3),
-                                    mainAxisSpacing: 5,
-                                    crossAxisSpacing: 5,
-                                  ),
-                                  itemCount: 16,
-                                  itemBuilder: (context, index) {
-                                    return buildKey(index);
+                                // Menu Icon (Settings)
+                                IconButton(
+                                  onPressed: () async { // <-- Make this function async
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            SettingsPage(
+                                              onDigitsChanged: _updateDigitsValue,
+                                              onFontSizeChanged: _updateFontSize,
+                                              onAnimationSpeedChanged: _updateAnimationSpeed,
+                                              onChangeRiddleTextSetting: (
+                                                  bool value) {
+                                                setState(() {
+                                                  _changeRiddleText = value;
+                                                });
+                                              },
+                                            ),
+                                      ),
+                                    );
+                                    _loadSettings(); // <-- Load your settings again
                                   },
+                                  icon: const Icon(
+                                      Icons.menu, color: CupertinoColors
+                                      .inactiveGray),
+                                ),
+
+                                // Elo Score
+                                Container(
+                                  padding: const EdgeInsets.all(4.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.7),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    'Elo: $_eloScore',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ]
-                )
-            )
-        )
-    );
+
+
+                            // 3. Riddle positioned above the keypad wrapped in a "display box".
+                            Expanded(
+                              flex: 7,
+                              child: Center(
+                                child: Container(
+                                  width: screenWidth * 0.85,
+                                  height: screenHeight * 0.53,
+                                  padding: const EdgeInsets.all(20.0),
+                                  decoration: BoxDecoration(
+                                      color: const Color(0xFFA8B6A0),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 5.0,
+                                            offset: Offset(2, 2)
+                                        ),
+                                      ]
+                                  ),
+
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          reverse: true,
+                                          // Makes the content start from the bottom
+                                          scrollDirection: Axis.vertical,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment
+                                                .end,
+                                            crossAxisAlignment: CrossAxisAlignment
+                                                .end,
+                                            children: [
+                                              Text(
+                                                _currentRiddleDisplay,
+                                                style: TextStyle(
+                                                    fontSize: _fontSize),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                              ..._wrongGuesses.map((
+                                                  wrongGuess) =>
+                                                  Text(
+                                                    wrongGuess,
+                                                    style: TextStyle(
+                                                        fontSize: _fontSize,
+                                                        color: Colors.red),
+                                                    textAlign: TextAlign.right,
+                                                  )).toList(),
+                                              Text(
+                                                _currentInput,
+                                                style: TextStyle(
+                                                    fontSize: _fontSize),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
+                            // Keypad
+                            Expanded(
+                              flex: 4,
+                              child: Stack(
+                                children: [
+                                  GridView.builder(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 0.0, 8.0, 8.0),
+                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      childAspectRatio: screenWidth /
+                                          (screenHeight / 3),
+                                      mainAxisSpacing: 5,
+                                      crossAxisSpacing: 5,
+                                    ),
+                                    itemCount: 16,
+                                    itemBuilder: (context, index) {
+                                      return buildKey(index);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]
+                  )
+              )
+          )
+      );
+    }
   }
-}
 

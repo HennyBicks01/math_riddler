@@ -112,7 +112,7 @@ class SettingsPageState extends State<SettingsPage> {
 
             const SizedBox(height: 20),
             const Text(
-              'Animation Speed (seconds)',
+              'Animation Speed',
               style: TextStyle(fontSize: 15),
             ),
             Slider(
@@ -130,7 +130,7 @@ class SettingsPageState extends State<SettingsPage> {
               },
             ),
             Text(
-              'Current animation speed: ${_animationSpeed == 0 ? "Instant" : _animationSpeed.toStringAsFixed(1)} seconds',
+              'Current animation speed: ${_animationSpeed == 0 ? "Instant" : _animationSpeed.toStringAsFixed(1)} (ms)',
               style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
             ),
 
