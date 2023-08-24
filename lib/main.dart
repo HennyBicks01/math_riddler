@@ -56,6 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _changeRiddleText = true;
   double _animationSpeed = 50; // Default to 1 second
   bool _isRiddleBeingDisplayed = false;
+  String _currentInput = ""; // To store the number being input by the user.
 
 
   final riddleGenerator = RiddleGenerator();
@@ -85,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
     prefs.setInt('elo_score', _eloScore);
   }
 
-  String _currentInput = ""; // To store the number being input by the user.
+
 
   void _appendToInput(String number) {
     setState(() {
