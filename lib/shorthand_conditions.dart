@@ -172,6 +172,26 @@ class ShortHandConditions{
       return 'Prime\n';
     }
 
+    // Sum of the digits until a single digit remains
+    else if (condition.contains("If you keep summing my digits together, you'll eventually get the number")) {
+      RegExp exp = RegExp(r"If you keep summing my digits together, you'll eventually get the number (\d+)\.");
+      Match? match = exp.firstMatch(condition);
+      if (match != null) {
+        String resultSum = match.group(1)!;
+        return 'Sum^n = $resultSum\n';
+      }
+    }
+
+    // Product of the digits until a single digit remains
+    else if (condition.contains("If you keep multiplying my digits together, you'll eventually get the number")) {
+      RegExp exp = RegExp(r"If you keep multiplying my digits together, you'll eventually get the number (\d+)\.");
+      Match? match = exp.firstMatch(condition);
+      if (match != null) {
+        String resultProduct = match.group(1)!;
+        return 'Product^n = $resultProduct\n';
+      }
+    }
+
     else if (condition.contains("If my") && condition.contains("raised to the power of my")) {
       RegExp exp = RegExp(r'If my (\w+) digit was raised to the power of my (\w+) digit, the result would be (\d+) digits\.');
       Match? match = exp.firstMatch(condition);

@@ -187,6 +187,22 @@ class RiddleConditions {
       conditions.add("I am a prime number.");
     }
 
+    // Sum of the digits until a single digit remains
+    int sumDigits = digits.reduce((a, b) => a + b);
+    while(sumDigits > 9) {
+      sumDigits = sumDigits.toString().split('').map((e) => int.parse(e)).reduce((a, b) => a + b);
+    }
+    conditions.add("If you keep summing my digits together, you'll eventually get the number $sumDigits.");
+
+    // Product of the digits until a single digit remains
+    int productDigits = digits.reduce((a, b) => a * b);
+    while(productDigits > 9 && productDigits % 2 == 1) {
+      productDigits = productDigits.toString().split('').map((e) => int.parse(e)).reduce((a, b) => a * b);
+    }
+    if (productDigits != 0) {  // Only add the condition if the final product isn't 0
+      conditions.add("If you keep multiplying my digits together, you'll eventually get the number $productDigits.");
+    }
+
     return conditions;
   }
 

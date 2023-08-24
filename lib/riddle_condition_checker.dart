@@ -60,6 +60,18 @@ class RiddleConditionChecker {
       return _isPrime(numberFormed2);
     }
 
+    // Sum of the digits until a single digit remains
+    if (condition.contains("If you keep summing my digits together, you'll eventually get the number")) {
+      int expectedSum = int.parse(condition.split("get the number ")[1].trim().split(".")[0]);
+      return _getReducedSum(digits) == expectedSum;
+    }
+
+    // Product of the digits until a single digit remains
+    if (condition.contains("If you keep multiplying my digits together, you'll eventually get the number")) {
+      int expectedProduct = int.parse(condition.split("get the number ")[1].trim().split(".")[0]);
+      return _getReducedProduct(digits) == expectedProduct;
+    }
+
     ///Two Digit Functions
     // Power Function for two different digits
     RegExp powerConditionRegex = RegExp(
@@ -210,6 +222,24 @@ class RiddleConditionChecker {
 
 
     return false;
+  }
+
+  /// Compute the sum of the digits until a single digit remains
+  int _getReducedSum(List<int> digits) {
+    int sumDigits = digits.reduce((a, b) => a + b);
+    while (sumDigits > 9) {
+      sumDigits = sumDigits.toString().split('').map((e) => int.parse(e)).reduce((a, b) => a + b);
+    }
+    return sumDigits;
+  }
+
+  /// Compute the product of the digits until a single digit remains
+  int _getReducedProduct(List<int> digits) {
+    int productDigits = digits.reduce((a, b) => a * b);
+    while (productDigits > 9 && productDigits != 0) {
+      productDigits = productDigits.toString().split('').map((e) => int.parse(e)).reduce((a, b) => a * b);
+    }
+    return productDigits;
   }
 
   /// Checks if the list of digits are in ascending order
