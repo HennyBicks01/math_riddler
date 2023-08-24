@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 
 import 'package:mathriddles/riddle_generator.dart';
@@ -57,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double _animationSpeed = 50; // Default to 1 second
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
+  List<String> _lastExpression = [];
 
 
   final riddleGenerator = RiddleGenerator();
@@ -207,6 +209,42 @@ class _MyHomePageState extends State<MyHomePage> {
     _saveEloScore(); // Clear the list of wrong guesses when skipping the riddle.
   }
 
+  // These are placeholder methods for the operations
+  void _performOperation(String operation) {
+    // Just append the operation to the current input
+    setState(() {
+      _currentInput += operation;
+    });
+  }
+
+  void _evaluateExpression() {
+    String expression = _currentInput;
+
+    // Replace 'x' with '*'
+    expression = expression.replaceAll('x', '*');
+
+    print("Expression after transformation: $expression");  // Debug line
+
+    final parser = Parser();
+    double result;
+
+    try {
+      Expression exp = parser.parse(expression);
+      result = exp.evaluate(EvaluationType.REAL, ContextModel());
+
+      setState(() {
+        _lastExpression.add(_currentInput + " = " + result.toString());
+        _currentInput = result.toString();
+      });
+
+    } catch (e) {
+      print("Error evaluating expression: $e");
+      setState(() {
+        _currentInput = "Invalid Expression";
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -219,64 +257,81 @@ class _MyHomePageState extends State<MyHomePage> {
         .size
         .height;
     Widget buildKey(int index) {
-      Color buttonColor;
-      Color textColor = Colors
-          .black; // Default text color to black for most buttons.
+      Color buttonColor = Colors.white; // Default color
+      Color textColor = Colors.black; // Default text color
 
-      switch (index) {
-        case 3:
-          return GridTile(
-            footer: Container(color: Colors.transparent),
-            child: ElevatedButton(
-              onPressed: _isRiddleBeingDisplayed ? null : _checkAnswer,
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (states) => Colors.green,
-                ),
-              ),
-              child: const Text(
-                  '>', style: TextStyle(fontSize: 20, color: Colors.white)),
-            ),
-          );
-        case 12:
+      // Mapping of indexes to their respective symbols or actions
+      List<String> symbols = [
+        '1', '2', '3', '+', '>',
+        '4', '5', '6', '-', '=',
+        '7', '8', '9', 'x', '^',
+        '<', '0', 'C', '/', '>>'
+      ];
+
+      if (index >= symbols.length) {
+        return Container();
+      }
+
+      String symbol = symbols[index];
+
+      // Check if the symbol is an operator to make it orange
+      if (['+', '-', 'x', '/', '^', '='].contains(symbol)) {
+        buttonColor = Colors.purple[200]!;
+      }
+
+      switch (symbol) {
+        case '>':
+          buttonColor = Colors.green;
+          textColor = Colors.white;
+          break;
+        case '<':
           buttonColor = Colors.orange;
           break;
-        case 13:
-          buttonColor = Colors.white;
-          break;
-        case 14:
+        case 'C':
           buttonColor = Colors.orange;
           break;
-        case 15:
+        case '>>':
           buttonColor = Colors.red;
           textColor = Colors.white;
           break;
-        case 7:
-        case 11:
-          return Container(color: Colors.transparent);
-        default:
-          buttonColor = Colors.white;
-          textColor = Colors.black;
       }
 
       return ElevatedButton(
         onPressed: _isRiddleBeingDisplayed ? null : () {
-          switch (index) {
-            case 12:
+          switch (symbol) {
+            case '>':
+              _checkAnswer();
+              break;
+            case '<':
               _removeLastDigit();
               break;
-            case 13:
-              _appendToInput('0');
-              break;
-            case 14:
+            case 'C':
               _clearInput();
               break;
-            case 15:
+            case '>>':
               _clearInput();
               _skipRiddle();
               break;
+            case '+':
+              _performOperation('+');
+              break;
+            case '-':
+              _performOperation('-');
+              break;
+            case 'x':
+              _performOperation('x');
+              break;
+            case '/':
+              _performOperation('/');
+              break;
+            case '^':
+              _performOperation('^');
+              break;
+            case '=':
+              _evaluateExpression();
+              break;
             default:
-              _appendToInput('${(index % 4) + 1 + (index ~/ 4) * 3}');
+              _appendToInput(symbol);
           }
         },
         style: ButtonStyle(
@@ -288,19 +343,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         child: Text(
-          index == 12
-              ? '<'
-              : index == 13
-              ? '0'
-              : index == 14
-              ? 'C'
-              : index == 15
-              ? '>>'
-              : '${(index % 4) + 1 + (index ~/ 4) * 3}',
+          symbol,
           style: TextStyle(fontSize: 20, color: textColor),
         ),
       );
     }
+
 
       return Scaffold(
           body: AnimatedContainer(
@@ -390,34 +438,35 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children: [
                                       Expanded(
                                         child: SingleChildScrollView(
-                                          reverse: true,
-                                          // Makes the content start from the bottom
+                                          reverse: true, // Makes the content start from the bottom
                                           scrollDirection: Axis.vertical,
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment
-                                                .end,
-                                            crossAxisAlignment: CrossAxisAlignment
-                                                .end,
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            crossAxisAlignment: CrossAxisAlignment.end,
                                             children: [
                                               Text(
                                                 _currentRiddleDisplay,
-                                                style: TextStyle(
-                                                    fontSize: _fontSize),
+                                                style: TextStyle(fontSize: _fontSize),
                                                 textAlign: TextAlign.right,
                                               ),
-                                              ..._wrongGuesses.map((
-                                                  wrongGuess) =>
+                                              ..._wrongGuesses.map((wrongGuess) =>
                                                   Text(
                                                     wrongGuess,
-                                                    style: TextStyle(
-                                                        fontSize: _fontSize,
-                                                        color: Colors.red),
+                                                    style: TextStyle(fontSize: _fontSize, color: Colors.red),
                                                     textAlign: TextAlign.right,
-                                                  )).toList(),
+                                                  )
+                                              ).toList(),
+                                              // Display the expressions from the history:
+                                              ..._lastExpression.map((expression) =>
+                                                  Text(
+                                                    expression,
+                                                    style: TextStyle(fontSize: _fontSize, color: Colors.grey[700]),
+                                                    textAlign: TextAlign.right,
+                                                  )
+                                              ).toList(),
                                               Text(
                                                 _currentInput,
-                                                style: TextStyle(
-                                                    fontSize: _fontSize),
+                                                style: TextStyle(fontSize: _fontSize),
                                                 textAlign: TextAlign.right,
                                               ),
                                             ],
@@ -437,20 +486,19 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Stack(
                                 children: [
                                   GridView.builder(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        8.0, 0.0, 8.0, 8.0),
+                                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      childAspectRatio: screenWidth /
-                                          (screenHeight / 3),
+                                      crossAxisCount: 5,
+                                      childAspectRatio: screenWidth / (screenHeight / 2.5),
                                       mainAxisSpacing: 5,
                                       crossAxisSpacing: 5,
                                     ),
-                                    itemCount: 16,
+                                    itemCount: 20,
                                     itemBuilder: (context, index) {
                                       return buildKey(index);
                                     },
                                   ),
+
                                 ],
                               ),
                             ),
