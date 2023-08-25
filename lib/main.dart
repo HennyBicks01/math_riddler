@@ -56,7 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
   final List<String> _lastExpression = [];
-  List<String> expressionSymbols = ['+', '-', 'x', '/', '^','Prime','Len','Fib','Sum','Prod'];
+  List<String> expressionSymbols = ['+', '-', 'x', '/', '^','Prm','Len','Fib','Sum','Prod','.','Ops'];
+  bool _showOperators = false;
+
 
   final riddleGenerator = RiddleGenerator();
 
@@ -227,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _performOperation(String operation) {
     // Check for special operations. If found, evaluate immediately
     switch (operation) {
-      case 'Prime':
+      case 'Prm':
         _evaluateIsPrime();
         return;
       case 'Len':
@@ -361,69 +363,6 @@ class _MyHomePageState extends State<MyHomePage> {
   /// --------------------------------------------------------------------------
   /// Main Page Build methods
   /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  // Creates Operators Modal view
-  void _showExpressionKeys(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Color (0xFFe5e9e3),  // Change to your desired color
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
-              ),
-            ),
-            child: SizedBox(
-              height: 350,
-              width: 450,// You can adjust this value to your preference
-              child: Column(
-                children: [
-                  // Title
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Operators",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-
-                  // Grid of buttons
-                  Expanded(
-                    child: GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 8.0),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4, // 4 buttons in a row
-                        childAspectRatio: 2, // Adjust based on your preferred button shape
-                        mainAxisSpacing: 5,
-                        crossAxisSpacing: 5,
-                      ),
-                      itemCount: expressionSymbols.length,
-                      itemBuilder: (context, index) {
-                        String symbol = expressionSymbols[index];
-                        return ElevatedButton(
-                          onPressed: () {
-                            _performOperation(symbol);
-                            Navigator.pop(context);  // Close the bottom sheet after pressing a button
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.purple,
-                          ),
-                          child: Text(symbol),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-
-
   //Main Page
   @override
   Widget build(BuildContext context) {
@@ -439,17 +378,19 @@ class _MyHomePageState extends State<MyHomePage> {
       Color buttonColor = Colors.white; // Default color
       Color textColor = Colors.black; // Default text color
 
+
       // Mapping of indexes to their respective symbols or actions
-      List<String> symbols = [
+      List<String> symbols = _showOperators ? expressionSymbols : [
         '1', '2', '3', '>',
         '4', '5', '6', '=',
-        '7', '8', '9', '&',
+        '7', '8', '9', 'Ops',
         '<', '0', 'C', '>>'
       ];
 
       if (index >= symbols.length) {
         return Container();
       }
+
       String symbol = symbols[index];
 
       switch (symbol) {
@@ -461,7 +402,7 @@ class _MyHomePageState extends State<MyHomePage> {
           buttonColor = Colors.blue;
           textColor = Colors.white;
           break;
-        case '&':
+        case 'Ops':
           buttonColor = Colors.purple;
           textColor = Colors.white;
           break;
@@ -475,6 +416,20 @@ class _MyHomePageState extends State<MyHomePage> {
           buttonColor = Colors.red;
           textColor = Colors.white;
           break;
+        case '+':
+        case '-':
+        case 'x':
+        case '/':
+        case '^':
+        case 'Prm':
+        case 'Len':
+        case 'Fib':
+        case 'Sum':
+        case 'Prod':
+        case '.':
+          buttonColor = Colors.purple[200]!;
+
+
       }
 
       return ElevatedButton(
@@ -493,23 +448,27 @@ class _MyHomePageState extends State<MyHomePage> {
               _clearInput();
               _skipRiddle();
               break;
-            case '&':
-              _showExpressionKeys(context);
+            case 'Ops':
+              setState(() {
+                _showOperators = !_showOperators; // Toggle the _showOperators state
+              });
               break;
+
             case '+':
-              _performOperation('+');
-              break;
             case '-':
-              _performOperation('-');
-              break;
             case 'x':
-              _performOperation('x');
-              break;
             case '/':
-              _performOperation('/');
-              break;
             case '^':
-              _performOperation('^');
+            case 'Prm':
+            case 'Len':
+            case 'Fib':
+            case 'Sum':
+            case 'Prod':
+            case '.':
+              setState(() {
+                _showOperators = false; // Reset the _showOperators to false
+              });
+              _performOperation(symbol);
               break;
             case '=':
               _evaluateExpression();
@@ -528,7 +487,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         child: Text(
           symbol,
-          style: TextStyle(fontSize: 20, color: textColor),
+          style: TextStyle(
+              fontSize: 18,
+              color: textColor,
+              fontFamily: 'TI84Font',
+          ),
         ),
       );
     }
@@ -681,7 +644,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       mainAxisSpacing: 5,
                                       crossAxisSpacing: 5,
                                     ),
-                                    itemCount: 20,
+                                    itemCount: _showOperators ? expressionSymbols.length : 20,
                                     itemBuilder: (context, index) {
                                       return buildKey(index);
                                     },
