@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
   final List<String> _lastExpression = [];
-  List<String> expressionSymbols = ['+', '-', 'x', '/', '^'];
+  List<String> expressionSymbols = ['+', '-', 'x', '/', '^','Prime','Len','Fibo'];
 
 
   final riddleGenerator = RiddleGenerator();
@@ -210,12 +210,80 @@ class _MyHomePageState extends State<MyHomePage> {
     _saveEloScore(); // Clear the list of wrong guesses when skipping the riddle.
   }
 
-  // These are placeholder methods for the operations
   void _performOperation(String operation) {
-    // Just append the operation to the current input
+    // Check for special operations. If found, evaluate immediately
+    switch (operation) {
+      case 'Prime':
+        _evaluateIsPrime();
+        return;
+      case 'Len':
+        _evaluateLength();
+        return;
+      case 'Fibo':
+        _evaluateIsFibonacci();
+        return;
+      default:
+      // Just append the operation to the current input for standard operations
+        setState(() {
+          _currentInput += operation;
+        });
+    }
+  }
+
+  void _evaluateIsPrime() {
+    int? num = int.tryParse(_currentInput);
+    if (num == null) {
+      setState(() {
+        _currentInput = "Invalid Number";
+      });
+      return;
+    }
+    bool prime = _isPrime(num);
     setState(() {
-      _currentInput += operation;
+      _lastExpression.add('isPrime($_currentInput) = $prime');
+      _currentInput = '';
     });
+  }
+
+  void _evaluateLength() {
+    setState(() {
+      _lastExpression.add('length($_currentInput) = ${_currentInput.length}');
+      _currentInput = _currentInput.length.toString();
+    });
+  }
+
+  void _evaluateIsFibonacci() {
+    int? num = int.tryParse(_currentInput);
+    if (num == null) {
+      setState(() {
+        _currentInput = "Invalid Number";
+      });
+      return;
+    }
+    bool fib = _isFibonacci(num);
+    setState(() {
+      _lastExpression.add('isFibonacci($_currentInput) = $fib');
+      _currentInput = '';
+    });
+  }
+
+  bool _isPrime(int num) {
+    if (num < 2) return false;
+    for (int i = 2; i * i <= num; i++) {
+      if (num % i == 0) return false;
+    }
+    return true;
+  }
+
+  bool _isFibonacci(int n) {
+    int a = 0, b = 1, c = a + b;
+    while (c <= n) {
+      if (c == n) return true;
+      a = b;
+      b = c;
+      c = a + b;
+    }
+    return false;
   }
 
   void _evaluateExpression() {
