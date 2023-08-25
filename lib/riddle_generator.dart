@@ -100,7 +100,7 @@ class RiddleGenerator {
 
     List<String> finalConditions = syphonThroughPossibilities(number);
 
-    String riddleText = 'I am a ${digits.length}-digit number.\n';
+    String riddleText = 'I\'m a ${digits.length}-digit number\n';
     for (int i = 0; i < finalConditions.length; i++) {
       String condition = finalConditions[i];
 

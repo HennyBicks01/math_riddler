@@ -38,9 +38,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
   final String title;
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -49,18 +47,16 @@ class _MyHomePageState extends State<MyHomePage> {
   late int _randomNumber;
   late String _riddle;
   int _eloScore = 1200;
-  Color _backgroundColor = Colors
-      .grey[200]!; // Changed to a calculator grayish tone.
+  Color _backgroundColor = const Color (0xFFe5e9e3); // Changed to a calculator grayish tone.
   String _currentRiddleDisplay = '';
   double _fontSize = 20; // default font size
   final List<String> _wrongGuesses = [];
-  bool _changeRiddleText = true;
+  bool _changeRiddleText = false;
   double _animationSpeed = 50; // Default to 1 second
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
   final List<String> _lastExpression = [];
-  List<String> expressionSymbols = ['+', '-', 'x', '/', '^','Prime','Len','Fibo'];
-
+  List<String> expressionSymbols = ['+', '-', 'x', '/', '^','Prime','Len','Fib','Sum','Prod'];
 
   final riddleGenerator = RiddleGenerator();
 
@@ -71,26 +67,55 @@ class _MyHomePageState extends State<MyHomePage> {
     _generateRiddle();
   }
 
+  /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /// Settings Page functions and Preferences
+  /// --------------------------------------------------------------------------
+  // Loads saved preferences from settings page
   void _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      _fontSize = prefs.getDouble('font_size') ?? 20;
-      _changeRiddleText = prefs.getBool('change_riddle_text') ?? true;
+      _fontSize = prefs.getDouble('font_size') ??
+          20;
+      _changeRiddleText = prefs.getBool('change_riddle_text') ??
+          true;
       _eloScore = prefs.getInt('elo_score') ??
           1200; // Use a default value of 1200 if not found
-
-      // Load any other settings you have here
+      _animationSpeed = prefs.getDouble('animation_speed') ??
+          50;
     });
   }
 
+  // Updates the font size for riddle display
+  void _updateFontSize(double newSize) {
+    setState(() {
+      _fontSize = newSize;
+    });
+  }
+
+  // Updates the animation speed for riddle display.
+  void _updateAnimationSpeed(double newSpeed) {
+    setState(() {
+      _animationSpeed = newSpeed;
+    });
+  }
+
+  // Updates the minimum and maximum digits for the riddle generator.
+  void _updateDigitsValue(int newValue) {
+    riddleGenerator.minDigits = newValue;
+    riddleGenerator.maxDigits =
+        newValue; // If you want to set both the min and max to the same value.
+  }
+
+  // Saves Elo
   void _saveEloScore() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt('elo_score', _eloScore);
   }
-
-
-
+  /// --------------------------------------------------------------------------
+  /// Button Functions
+  /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Updates Input on button press
   void _appendToInput(String number) {
     setState(() {
       _currentInput += number;
@@ -98,20 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
-  void _updateFontSize(double newSize) {
-    setState(() {
-      _fontSize = newSize;
-    });
-  }
-
-  void _updateAnimationSpeed(double newSpeed) {
-    setState(() {
-      _animationSpeed = newSpeed;
-    });
-  }
-
-
+  // Removes the last digit from the current input.
   void _removeLastDigit() {
     if (_currentInput.isNotEmpty) {
       setState(() {
@@ -121,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Clears the current input.
   void _clearInput() {
     setState(() {
       _currentInput = "";
@@ -128,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Generates a new riddle.
   void _generateRiddle() {
     final RiddleResult result = riddleGenerator.generateRiddle(
         isShorthandMode: _changeRiddleText);
@@ -144,7 +158,49 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+  // Checks the user's answer against the correct answer, updates the ELO score, and provides feedback.
+  void _checkAnswer() {
+    if (_currentInput == _randomNumber.toString()) {
+      _flashBackground(Colors.green);
+      _eloScore += 15;
+      _generateRiddle();
+      _wrongGuesses.clear();
+      _saveEloScore(); // Clear the list of wrong guesses upon correct answer.
+    } else {
+      _flashBackground(Colors.red);
+      _eloScore -= 15;
+      _wrongGuesses.add(_currentInput);
+      _saveEloScore();
+    }
+    setState(() {
+      _currentInput = ""; // This line clears the input after Submit is clicked.
+    });
+  }
 
+  // Allows the user to skip the current riddle, with an ELO score penalty.
+  void _skipRiddle() {
+    _eloScore -= 10;
+    _generateRiddle();
+    _wrongGuesses.clear();
+    _lastExpression.clear();
+    _saveEloScore(); // Clear the list of wrong guesses when skipping the riddle.
+  }
+  /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /// Animations
+  /// **************************************************************************
+  // Flashes the app's background color to provide feedback.
+  void _flashBackground(Color color) {
+    setState(() {
+      _backgroundColor = color;
+    });
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        _backgroundColor = Colors.white;
+      });
+    });
+  }
+
+  // Animates the typing out of the riddle.
   void _typeOutRiddle() async {
     if (_animationSpeed == 0.0 || _animationSpeed.toString() ==
         'Instant') { // "0" represents instant in this example
@@ -164,52 +220,10 @@ class _MyHomePageState extends State<MyHomePage> {
       _isRiddleBeingDisplayed = false;
     }
   }
-
-
-  void _updateDigitsValue(int newValue) {
-    riddleGenerator.minDigits = newValue;
-    riddleGenerator.maxDigits =
-        newValue; // If you want to set both the min and max to the same value.
-  }
-
-  void _checkAnswer() {
-    if (_currentInput == _randomNumber.toString()) {
-      _flashBackground(Colors.green);
-      _eloScore += 15;
-      _generateRiddle();
-      _wrongGuesses.clear();
-      _saveEloScore(); // Clear the list of wrong guesses upon correct answer.
-    } else {
-      _flashBackground(Colors.red);
-      _eloScore -= 15;
-      _wrongGuesses.add(_currentInput);
-      _saveEloScore();
-    }
-    setState(() {
-      _currentInput = ""; // This line clears the input after Submit is clicked.
-    });
-  }
-
-
-  // Function to flash the background color.
-  void _flashBackground(Color color) {
-    setState(() {
-      _backgroundColor = color;
-    });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        _backgroundColor = Colors.white;
-      });
-    });
-  }
-
-  void _skipRiddle() {
-    _eloScore -= 10;
-    _generateRiddle();
-    _wrongGuesses.clear();
-    _saveEloScore(); // Clear the list of wrong guesses when skipping the riddle.
-  }
-
+  /// **************************************************************************
+  ///  Operations
+  /// --------------------------------------------------------------------------
+  // Handles the operations performed by the user, including special functions
   void _performOperation(String operation) {
     // Check for special operations. If found, evaluate immediately
     switch (operation) {
@@ -219,17 +233,23 @@ class _MyHomePageState extends State<MyHomePage> {
       case 'Len':
         _evaluateLength();
         return;
-      case 'Fibo':
+      case 'Fib':
         _evaluateIsFibonacci();
         return;
+      case 'Sum':
+        _evaluateSumOfDigits();
+        return;
+      case 'Prod':
+        _evaluateProductOfDigits();
+        return;
       default:
-      // Just append the operation to the current input for standard operations
         setState(() {
           _currentInput += operation;
         });
     }
   }
 
+  // Evaluates and checks if the current input number is a prime number.
   void _evaluateIsPrime() {
     int? num = int.tryParse(_currentInput);
     if (num == null) {
@@ -245,6 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Evaluates the length of the current input.
   void _evaluateLength() {
     setState(() {
       _lastExpression.add('length($_currentInput) = ${_currentInput.length}');
@@ -252,6 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Evaluates and checks if the current input number is part of the Fibonacci sequence.
   void _evaluateIsFibonacci() {
     int? num = int.tryParse(_currentInput);
     if (num == null) {
@@ -267,6 +289,35 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Takes the sum of all of the inputted numbers
+  void _evaluateSumOfDigits() {
+    int sum = 0;
+    for (var digit in _currentInput.split('')) {
+      int? num = int.tryParse(digit);
+      if (num != null) sum += num;
+    }
+
+    setState(() {
+      _lastExpression.add('sum($_currentInput) = $sum');
+      _currentInput = sum.toString();
+    });
+  }
+
+  // Takes the product of all of the inputted numbers
+  void _evaluateProductOfDigits() {
+    int product = 1;
+    for (var digit in _currentInput.split('')) {
+      int? num = int.tryParse(digit);
+      if (num != null) product *= num;
+    }
+
+    setState(() {
+      _lastExpression.add('product($_currentInput) = $product');
+      _currentInput = product.toString();
+    });
+  }
+
+  // Utility function to check if a given number is prime.
   bool _isPrime(int num) {
     if (num < 2) return false;
     for (int i = 2; i * i <= num; i++) {
@@ -275,6 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return true;
   }
 
+  // Utility function to check if a given number belongs to the Fibonacci sequence.
   bool _isFibonacci(int n) {
     int a = 0, b = 1, c = a + b;
     while (c <= n) {
@@ -286,26 +338,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return false;
   }
 
+  // Parses and evaluates mathematical expressions entered by the user.
   void _evaluateExpression() {
     String expression = _currentInput;
-
-    // Replace 'x' with '*'
     expression = expression.replaceAll('x', '*');
-
-    print("Expression after transformation: $expression");  // Debug line
-
     final parser = Parser();
     double result;
-
     try {
       Expression exp = parser.parse(expression);
       result = exp.evaluate(EvaluationType.REAL, ContextModel());
-
       setState(() {
         _lastExpression.add('$_currentInput = ${result.toString()}');
         _currentInput = result.toString();
       });
-
     } catch (e) {
       print("Error evaluating expression: $e");
       setState(() {
@@ -313,52 +358,65 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
-
+  /// --------------------------------------------------------------------------
+  /// Main Page Build methods
+  /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Creates Operators Modal view
   void _showExpressionKeys(BuildContext context) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
-          return SizedBox(
-            height: 400, // You can adjust this value to your preference
-            child: Column(
-              children: [
-                // Title
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "Operators",
-                    style: TextStyle(fontSize: 24),
-                  ),
-                ),
-
-                // Grid of buttons
-                Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4, // 4 buttons in a row
-                      childAspectRatio: 2, // Adjust based on your preferred button shape
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5,
+          return Container(
+            decoration: const BoxDecoration(
+              color: Color (0xFFe5e9e3),  // Change to your desired color
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
+            ),
+            child: SizedBox(
+              height: 350,
+              width: 450,// You can adjust this value to your preference
+              child: Column(
+                children: [
+                  // Title
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Operators",
+                      style: TextStyle(fontSize: 20),
                     ),
-                    itemCount: expressionSymbols.length,
-                    itemBuilder: (context, index) {
-                      String symbol = expressionSymbols[index];
-                      return ElevatedButton(
-                        onPressed: () {
-                          _performOperation(symbol);
-                          Navigator.pop(context);  // Close the bottom sheet after pressing a button
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.purple[200],
-                        ),
-                        child: Text(symbol),
-                      );
-                    },
                   ),
-                ),
-              ],
+
+                  // Grid of buttons
+                  Expanded(
+                    child: GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 8.0),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4, // 4 buttons in a row
+                        childAspectRatio: 2, // Adjust based on your preferred button shape
+                        mainAxisSpacing: 5,
+                        crossAxisSpacing: 5,
+                      ),
+                      itemCount: expressionSymbols.length,
+                      itemBuilder: (context, index) {
+                        String symbol = expressionSymbols[index];
+                        return ElevatedButton(
+                          onPressed: () {
+                            _performOperation(symbol);
+                            Navigator.pop(context);  // Close the bottom sheet after pressing a button
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.purple,
+                          ),
+                          child: Text(symbol),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         });
@@ -366,8 +424,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-
-
+  //Main Page
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery
@@ -390,12 +447,9 @@ class _MyHomePageState extends State<MyHomePage> {
         '<', '0', 'C', '>>'
       ];
 
-
-
       if (index >= symbols.length) {
         return Container();
       }
-
       String symbol = symbols[index];
 
       switch (symbol) {
@@ -404,11 +458,11 @@ class _MyHomePageState extends State<MyHomePage> {
           textColor = Colors.white;
           break;
         case '=':
-          buttonColor = Colors.blue[200]!;
+          buttonColor = Colors.blue;
           textColor = Colors.white;
           break;
         case '&':
-          buttonColor = Colors.purple[200]!;
+          buttonColor = Colors.purple;
           textColor = Colors.white;
           break;
         case '<':
@@ -491,11 +545,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         Column(
                           children: [
 
-                            // New Row for ELO Score and Menu Icon
+                            //Row for ELO Score and Menu Icon
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               // Space out the children.
                               children: [
+
+
                                 // Menu Icon (Settings)
                                 IconButton(
                                   onPressed: () async { // <-- Make this function async
@@ -522,6 +578,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       .inactiveGray),
                                 ),
 
+
                                 // Elo Score
                                 Container(
                                   padding: const EdgeInsets.all(4.0),
@@ -542,7 +599,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
 
 
-                            //Riddle
+                            //Riddle and User input
                             Expanded(
                               flex: 7,
                               child: Center(
@@ -552,7 +609,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   padding: const EdgeInsets.all(20.0),
                                   decoration: BoxDecoration(
                                       color: const Color(0xFFA8B6A0),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(width: 20.0, color: const Color(0xFF5a6155)), // Adding 20px border
                                       boxShadow: const [
                                         BoxShadow(
                                             color: Colors.black26,
@@ -561,7 +619,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ),
                                       ]
                                   ),
-
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -610,13 +667,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
 
 
+
                             // Keypad
                             Expanded(
                               flex: 4,
                               child: Stack(
                                 children: [
                                   GridView.builder(
-                                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                                    padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 8.0),
                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 4,
                                       childAspectRatio: screenWidth / (screenHeight / 3),
@@ -628,7 +686,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       return buildKey(index);
                                     },
                                   ),
-
                                 ],
                               ),
                             ),
