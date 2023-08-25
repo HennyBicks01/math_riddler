@@ -58,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
   double _animationSpeed = 50; // Default to 1 second
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
-  List<String> _lastExpression = [];
+  final List<String> _lastExpression = [];
+  List<String> expressionSymbols = ['+', '-', 'x', '/', '^'];
 
 
   final riddleGenerator = RiddleGenerator();
@@ -233,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
       result = exp.evaluate(EvaluationType.REAL, ContextModel());
 
       setState(() {
-        _lastExpression.add(_currentInput + " = " + result.toString());
+        _lastExpression.add('$_currentInput = ${result.toString()}');
         _currentInput = result.toString();
       });
 
@@ -244,6 +245,59 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
+  void _showExpressionKeys(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SizedBox(
+            height: 400, // You can adjust this value to your preference
+            child: Column(
+              children: [
+                // Title
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Operators",
+                    style: TextStyle(fontSize: 24),
+                  ),
+                ),
+
+                // Grid of buttons
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4, // 4 buttons in a row
+                      childAspectRatio: 2, // Adjust based on your preferred button shape
+                      mainAxisSpacing: 5,
+                      crossAxisSpacing: 5,
+                    ),
+                    itemCount: expressionSymbols.length,
+                    itemBuilder: (context, index) {
+                      String symbol = expressionSymbols[index];
+                      return ElevatedButton(
+                        onPressed: () {
+                          _performOperation(symbol);
+                          Navigator.pop(context);  // Close the bottom sheet after pressing a button
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.purple[200],
+                        ),
+                        child: Text(symbol),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+
+
 
 
   @override
@@ -262,11 +316,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Mapping of indexes to their respective symbols or actions
       List<String> symbols = [
-        '1', '2', '3', '+', '>',
-        '4', '5', '6', '-', '=',
-        '7', '8', '9', 'x', '^',
-        '<', '0', 'C', '/', '>>'
+        '1', '2', '3', '>',
+        '4', '5', '6', '=',
+        '7', '8', '9', '&',
+        '<', '0', 'C', '>>'
       ];
+
+
 
       if (index >= symbols.length) {
         return Container();
@@ -274,14 +330,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
       String symbol = symbols[index];
 
-      // Check if the symbol is an operator to make it orange
-      if (['+', '-', 'x', '/', '^', '='].contains(symbol)) {
-        buttonColor = Colors.purple[200]!;
-      }
-
       switch (symbol) {
         case '>':
           buttonColor = Colors.green;
+          textColor = Colors.white;
+          break;
+        case '=':
+          buttonColor = Colors.blue[200]!;
+          textColor = Colors.white;
+          break;
+        case '&':
+          buttonColor = Colors.purple[200]!;
           textColor = Colors.white;
           break;
         case '<':
@@ -311,6 +370,9 @@ class _MyHomePageState extends State<MyHomePage> {
             case '>>':
               _clearInput();
               _skipRiddle();
+              break;
+            case '&':
+              _showExpressionKeys(context);
               break;
             case '+':
               _performOperation('+');
@@ -412,7 +474,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
 
 
-                            // 3. Riddle positioned above the keypad wrapped in a "display box".
+                            //Riddle
                             Expanded(
                               flex: 7,
                               child: Center(
@@ -488,8 +550,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   GridView.builder(
                                     padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 5,
-                                      childAspectRatio: screenWidth / (screenHeight / 2.5),
+                                      crossAxisCount: 4,
+                                      childAspectRatio: screenWidth / (screenHeight / 3),
                                       mainAxisSpacing: 5,
                                       crossAxisSpacing: 5,
                                     ),
