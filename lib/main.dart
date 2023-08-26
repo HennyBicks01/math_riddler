@@ -56,7 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
   final List<String> _lastExpression = [];
-  List<String> expressionSymbols = ['+', '-', 'x', '/', '^','Prm','Len','Fib','Sum','Prod','.','Ops'];
+  List<String> expressionSymbols =
+  ['+', '-', 'x', '/',
+    '^','Prm','Len','Fib',
+    'Sum','Prod','.','Ops'];
   bool _showOperators = false;
 
 
@@ -485,12 +488,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 (states) => textColor,
           ),
         ),
-        child: Text(
-          symbol,
-          style: TextStyle(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            symbol,
+            style: TextStyle(
               fontSize: 18,
               color: textColor,
               fontFamily: 'TI84Font',
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       );
@@ -508,60 +516,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         Column(
                           children: [
 
-                            //Row for ELO Score and Menu Icon
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              // Space out the children.
-                              children: [
-
-
-                                // Menu Icon (Settings)
-                                IconButton(
-                                  onPressed: () async { // <-- Make this function async
-                                    await Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            SettingsPage(
-                                              onDigitsChanged: _updateDigitsValue,
-                                              onFontSizeChanged: _updateFontSize,
-                                              onAnimationSpeedChanged: _updateAnimationSpeed,
-                                              onChangeRiddleTextSetting: (
-                                                  bool value) {
-                                                setState(() {
-                                                  _changeRiddleText = value;
-                                                });
-                                              },
-                                            ),
-                                      ),
-                                    );
-                                    _loadSettings(); // <-- Load your settings again
-                                  },
-                                  icon: const Icon(
-                                      Icons.menu, color: CupertinoColors
-                                      .inactiveGray),
-                                ),
-
-
-                                // Elo Score
-                                Container(
-                                  padding: const EdgeInsets.all(4.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Text(
-                                    'Elo: $_eloScore',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-
                             //Riddle and User input
                             Expanded(
                               flex: 7,
@@ -569,7 +523,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Container(
                                   width: screenWidth * 0.85,
                                   height: screenHeight * 0.53,
-                                  padding: const EdgeInsets.all(20.0),
+                                  padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 8.0),
                                   decoration: BoxDecoration(
                                       color: const Color(0xFFA8B6A0),
                                       borderRadius: BorderRadius.circular(15),
@@ -586,6 +540,52 @@ class _MyHomePageState extends State<MyHomePage> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
+
+                                    //Row for ELO Score and Menu Icon
+                                    Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+
+                                      // Elo Score with no border and smaller font
+                                      Text(
+                                        'Elo: $_eloScore',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+
+                                      // Menu Icon (Settings) with padding adjusted
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 20.0),
+                                        child: IconButton(
+                                          onPressed: () async {
+                                            await Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SettingsPage(
+                                                      onDigitsChanged: _updateDigitsValue,
+                                                      onFontSizeChanged: _updateFontSize,
+                                                      onAnimationSpeedChanged: _updateAnimationSpeed,
+                                                      onChangeRiddleTextSetting: (
+                                                          bool value) {
+                                                        setState(() {
+                                                          _changeRiddleText = value;
+                                                        });
+                                                      },
+                                                    ),
+                                              ),
+                                            );
+                                            _loadSettings();
+                                          },
+                                          icon: const Icon(
+                                              Icons.menu, color: CupertinoColors.black),
+                                        ),
+                                      ),
+
+                                        ],
+                                      ),
                                       Expanded(
                                         child: SingleChildScrollView(
                                           reverse: true, // Makes the content start from the bottom

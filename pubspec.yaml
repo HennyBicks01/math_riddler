@@ -33,6 +33,9 @@ flutter:
     - family: TI84Fontp
       fonts:
         - asset: fonts/texas_instruments_ti84_seriesp.ttf
+    - family: Fun
+      fonts:
+        - asset: fonts/fun.ttf
 
   # If you have other flutter configurations like assets, they go here.
   # For example:
