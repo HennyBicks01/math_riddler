@@ -687,7 +687,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
 
-                            // Keypad
                             Expanded(
                               flex: 4,
                               child: Stack(
@@ -704,10 +703,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                     itemBuilder: (context, index) {
                                       return buildKey(index);
                                     },
+                                    physics: const NeverScrollableScrollPhysics(),  // Added this line to disable scrolling.
                                   ),
                                 ],
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ]
