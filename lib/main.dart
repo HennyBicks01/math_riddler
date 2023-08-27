@@ -310,18 +310,8 @@ class _MyHomePageState extends State<MyHomePage> {
         case '<':buttonColor = Colors.orange; break;
         case 'C':buttonColor = Colors.orange; break;
         case '>>':buttonColor = Colors.red; textColor = Colors.white; break;
-        case '+':
-        case '-':
-        case 'x':
-        case '/':
-        case '^':
-        case 'Prm':
-        case 'Len':
-        case 'Fib':
-        case 'Sum':
-        case 'Prod':
-        case '.':
-          buttonColor = Colors.purple[200]!;
+        default:
+          buttonColor = Colors.white;
       }
 
       return ElevatedButton(
@@ -330,46 +320,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
           if (_isRiddleBeingDisplayed) return;
           switch (symbol) {
-            case '>':
-              _checkAnswer();
-              break;
-            case '<':
-              _removeLastDigit();
-              break;
-            case 'C':
-              _clearInput();
-              break;
-            case '>>':
-              _clearInput();
-              _skipRiddle();
-              break;
-            case 'Ops':
-              setState(() {
-                _showOperators = !_showOperators; // Toggle the _showOperators state
-              });
-              break;
+            case '>':_checkAnswer();break;
+            case '<':_removeLastDigit();break;
+            case 'C':_clearInput();break;
+            case '>>':_clearInput();_skipRiddle();break;
+            case 'Ops':setState(() {_showOperators = !_showOperators;});break;
+            case '=': operations.evaluateExpression(); break;
 
-            case '+':
-            case '-':
-            case 'x':
-            case '/':
-            case '^':
-            case 'Prm':
-            case 'Len':
-            case 'Fib':
-            case 'Sum':
-            case 'Prod':
-            case '.':
+            case '+': case '-': case 'x': case '/': case '^': case 'Prm':
+            case 'Len': case 'Fib': case 'Sum': case 'Prod': case '.':
               setState(() {
                 _showOperators = false; // Reset the _showOperators to false
               });
-              operations.performOperation(symbol);
-              break;
-            case '=':
-              operations.evaluateExpression();
-              break;
-            default:
-              _appendToInput(symbol);
+              operations.performOperation(symbol); break;
+
+            default: _appendToInput(symbol);
           }
         },
         style: ButtonStyle(
@@ -395,7 +360,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     }
-
 
       return Scaffold(
           body: AnimatedContainer(
