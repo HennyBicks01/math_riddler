@@ -4,15 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsPage extends StatefulWidget {
   final Function(int) onDigitsChanged;
   final Function(double) onFontSizeChanged;
-  final Function(bool) onChangeRiddleTextSetting;
-  final Function(double) onAnimationSpeedChanged;// Added callback for riddle text setting
+  final Function(double) onChangeRiddleTextSetting;
+  final Function(double) onAnimationSpeedChanged;
+  final Function onRiddleTextModeChanged;// Added callback for riddle text setting
 
   const SettingsPage({
     Key? key,
     required this.onDigitsChanged,
     required this.onFontSizeChanged,
     required this.onChangeRiddleTextSetting,
-    required this.onAnimationSpeedChanged,// constructor parameter for new callback
+    required this.onAnimationSpeedChanged,
+    required this.onRiddleTextModeChanged,// constructor parameter for new callback
   }) : super(key: key);
 
   @override
@@ -22,7 +24,7 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   double _currentSliderValue = 3; // Default value set to 3 digits
   double _fontSize = 20; // 1. Default font size
-  bool _changeRiddleText = false; // Setting for riddle text
+  double _changeRiddleText = 1.0; // Setting for riddle text
   double _animationSpeed = 50; // Default to 1 second
 
 
@@ -37,7 +39,7 @@ class SettingsPageState extends State<SettingsPage> {
     setState(() {
       _currentSliderValue = prefs.getDouble('digits_slider') ?? 3;
       _fontSize = prefs.getDouble('font_size') ?? 20;
-      _changeRiddleText = prefs.getBool('change_riddle_text') ?? false;
+      _changeRiddleText = prefs.getDouble('change_riddle_text') ?? 1.0;
       _animationSpeed = prefs.getDouble('animation_speed') ?? 50.0;
     });
   }
@@ -189,8 +191,8 @@ class SettingsPageState extends State<SettingsPage> {
     double dynamicFontSize = _getDynamicFontSize(context);
 
     List<Map<String, dynamic>> options = [
-      {"label": "ABBREVIATE", "value": true},
-      {"label": "NORMAL", "value": false},
+      {"label": "ABBREVIATE", "value": 1.0},
+      {"label": "NORMAL", "value": 2.0},
     ];
 
     return [
@@ -199,7 +201,8 @@ class SettingsPageState extends State<SettingsPage> {
           Text(
             "TEXT:",
             style: TextStyle(
-              fontSize: dynamicFontSize,),
+              fontSize: dynamicFontSize,
+            ),
           ),
           ...options.map((option) {
             bool isSelected = option["value"] == _changeRiddleText;
@@ -210,14 +213,19 @@ class SettingsPageState extends State<SettingsPage> {
                   widget.onChangeRiddleTextSetting(_changeRiddleText);
                   _saveSettings('change_riddle_text', _changeRiddleText);
                 });
+                // Update the riddle text mode when an option is tapped
+                widget.onRiddleTextModeChanged(); // <-- Call the new callback here
+
+                // Call the _loadSettings() after updating the setting to check for changes and update riddle text.
+                _loadSettings();
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5),  // Add padding for better appearance
+                padding: const EdgeInsets.symmetric(horizontal: 5), // Add padding for better appearance
                 color: isSelected ? Colors.black : Colors.transparent,
                 child: Text(
                   option["label"],
                   style: TextStyle(
-                    fontSize: dynamicFontSize,  // <-- Set font size to 12
+                    fontSize: dynamicFontSize, // <-- Set font size to 12
                     color: isSelected ? Colors.white : Colors.black,
                   ),
                 ),
@@ -228,6 +236,7 @@ class SettingsPageState extends State<SettingsPage> {
       ),
     ];
   }
+
 
 
   @override

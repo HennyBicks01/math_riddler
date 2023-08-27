@@ -2,12 +2,16 @@ import 'dart:math';
 import 'package:mathriddles/riddle_condition_checker.dart';
 import 'package:mathriddles/riddle_conditions.dart';
 import 'package:mathriddles/shorthand_conditions.dart';
+import 'dart:collection';
+
 
 class RiddleResult {
   final int number;
-  final String riddle;
+  final String riddleNormal;
+  final String riddleShort;
 
-  RiddleResult({required this.number, required this.riddle});
+
+  RiddleResult({required this.number, required this.riddleNormal, required this.riddleShort});
 }
 
 class RiddleGenerator {
@@ -31,90 +35,84 @@ class RiddleGenerator {
   }
 
   List<String> syphonThroughPossibilities(int number) {
-    // Determine the range based on the number of digits in the given number.
     int length = number.toString().length;
     int minNumber = pow(10, length - 1).toInt();
     int maxNumber = (pow(10, length) - 1).toInt();
 
     if (minNumber >= maxNumber) {
-      print('Invalid range: minNumber should be less than maxNumber.');
+      //print('Invalid range: minNumber should be less than maxNumber.');
       return [];
     }
 
-    List<int> possibleNumbers = List.generate(
-        maxNumber - minNumber + 1, (index) => index + minNumber);
+    Set<int> possibleNumbers = Set.from(
+        List.generate(maxNumber - minNumber + 1, (index) => index + minNumber));
 
     List<String> finalConditions = [];
     List<String> conditions = riddleConditions.generalCondition(
         number.toString().split('').map((char) => int.parse(char)).toList());
+    Queue<String> conditionsQueue = Queue.from(conditions);
 
-    while (possibleNumbers.length != 1) {
+    int iterationLimit = 100;  // Set a limit on iterations
+    int currentIteration = 0;
+
+    while (possibleNumbers.length != 1 && currentIteration < iterationLimit) {
+      currentIteration++;
+
       if (possibleNumbers.isEmpty) {
-        print('No possible numbers left.');
+       // print('No possible numbers left.');
         break;
       }
 
-      // Directly choose a condition from the main conditions list.
-      // Using the 'this.' prefix to access the class's instance of Random
-      String selectedCondition = conditions[_random.nextInt(conditions.length)];
-      print('Selected condition: $selectedCondition');
+      if (conditionsQueue.isEmpty) {
+       // print('No more conditions left to try.');
+        break;
+      }
 
-      // Filter the list of possible numbers based on the selected condition
-      List<int> filteredNumbers = possibleNumbers.where((number) {
-        // Convert the current number to a list of digits.
+      String selectedCondition = conditionsQueue.removeFirst();
+      //print('Selected condition: $selectedCondition');
+
+      Set<int> filteredNumbers = possibleNumbers.where((number) {
         List<int> numDigits = number.toString().split('').map((char) =>
             int.parse(char)).toList();
 
-        return conditionChecker.satisfiesCondition(
-            numDigits, selectedCondition);
-      }).toList();
+        return conditionChecker.satisfiesCondition(numDigits, selectedCondition);
+      }).toSet();
 
       if (filteredNumbers.isNotEmpty &&
           filteredNumbers.length < possibleNumbers.length) {
-        // Update possibleNumbers if the filtering is successful.
         possibleNumbers = filteredNumbers;
-        print('Numbers that passed this condition: $possibleNumbers');
-
         finalConditions.add(selectedCondition);
-        conditions.remove(
-            selectedCondition); // Remove the condition from the main list to avoid repetition
       } else {
-        print('Condition didn\'t help in filtering. Numbers remained the same.');
-        conditions.remove(
-            selectedCondition); // Remove the ineffective condition
-      }
-
-      // Check if there are no more conditions to try
-      if (conditions.isEmpty) {
-        print('No more conditions left to try.');
-        break;
+        //print('Condition didn\'t help in filtering. Numbers remained the same.');
       }
     }
 
     return finalConditions;
   }
 
-  RiddleResult generateRiddle({required bool isShorthandMode}) {
+
+  RiddleResult generateRiddle() {
     List<int> digits = _generateNumber();
     int number = int.parse(digits.join(''));
 
     List<String> finalConditions = syphonThroughPossibilities(number);
 
-    String riddleText = 'I\'m a ${digits.length}-digit number\n';
+    String riddleTextNormal = 'I\'m a ${digits.length}-digit number\n';
+    String riddleTextShort = 'I\'m a ${digits.length}-digit number\n';
+
     for (int i = 0; i < finalConditions.length; i++) {
       String condition = finalConditions[i];
+      riddleTextNormal += condition;
 
-      // Modify the condition if shorthand mode is ON
-      if (isShorthandMode) {
-        ShortHandConditions shorthand = ShortHandConditions();
-        condition = shorthand.getShorthandCondition(condition, digitNames);
-      }
-
-      riddleText += condition;
+      // Always generate the shorthand condition for the shorthand version
+      ShortHandConditions shorthand = ShortHandConditions();
+      String conditionShort = shorthand.getShorthandCondition(condition, digitNames);
+      riddleTextShort += conditionShort;
     }
 
-    return RiddleResult(number: number, riddle: riddleText);
+    return RiddleResult(number: number, riddleNormal: riddleTextNormal, riddleShort: riddleTextShort);
   }
+
 
   // Usage
   List<String> digitNames = [

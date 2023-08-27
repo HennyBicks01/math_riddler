@@ -188,7 +188,7 @@ class ShortHandConditions{
       Match? match = exp.firstMatch(condition);
       if (match != null) {
         String resultProduct = match.group(1)!;
-        return 'Product^n = $resultProduct\n';
+        return 'Product^n   = $resultProduct\n';
       }
     }
 

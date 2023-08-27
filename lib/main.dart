@@ -46,12 +46,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late int _randomNumber;
   late String _riddle;
+  late String _riddleShort;
+  late String _riddleNormal;
   int _eloScore = 1200;
   Color _backgroundColor = const Color (0xFFe5e9e3); // Changed to a calculator grayish tone.
   String _currentRiddleDisplay = '';
   double _fontSize = 20; // default font size
   final List<String> _wrongGuesses = [];
-  bool _changeRiddleText = false;
+  double _changeRiddleText = 1.0;
   double _animationSpeed = 50; // Default to 1 second
   bool _isRiddleBeingDisplayed = false;
   String _currentInput = ""; // To store the number being input by the user.
@@ -62,6 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
     'Sum','Prod','.','Ops'];
   bool _showOperators = false;
   bool _isSettingsOpen = false;
+  int? currentNumber;
+  List<String>? currentConditions;
+  bool isShorthandMode = false;
 
 
   final riddleGenerator = RiddleGenerator();
@@ -79,18 +84,14 @@ class _MyHomePageState extends State<MyHomePage> {
   // Loads saved preferences from settings page
   void _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-
     setState(() {
-      _fontSize = prefs.getDouble('font_size') ??
-          20;
-      _changeRiddleText = prefs.getBool('change_riddle_text') ??
-          false;
-      _eloScore = prefs.getInt('elo_score') ??
-          1200; // Use a default value of 1200 if not found
-      _animationSpeed = prefs.getDouble('animation_speed') ??
-          50;
+      _fontSize = prefs.getDouble('font_size') ?? 20;
+      _changeRiddleText = prefs.getDouble('change_riddle_text') ?? 1.0;
+      _eloScore = prefs.getInt('elo_score') ?? 1200;
+      _animationSpeed = prefs.getDouble('animation_speed') ?? 3;
     });
   }
+
 
   // Updates the font size for riddle display
   void _updateFontSize(double newSize) {
@@ -112,11 +113,42 @@ class _MyHomePageState extends State<MyHomePage> {
     riddleGenerator.maxDigits = newValue; // If you want to set both the min and max to the same value.
   }
 
+  // Updates the animation speed for riddle display.
+  void _updateRiddleText(double newText) {
+    setState(() {
+      _changeRiddleText = newText;
+
+      if (_changeRiddleText == 1.0) {
+        _currentRiddleDisplay = _riddleNormal;
+      } else {
+        _currentRiddleDisplay = _riddleShort;
+      }
+    });
+  }
+
+  void _changeRiddleMode() {
+    if (_changeRiddleText == 1.0) {
+      _currentRiddleDisplay = _riddleShort;
+    } else {
+      _currentRiddleDisplay = _riddleNormal;
+    }
+  }
+
+  void _setRiddleMode() {
+    if (_changeRiddleText == 1.0) {
+      _riddle = _riddleShort;
+    } else {
+      _riddle = _riddleNormal;
+    }
+  }
+
   // Saves Elo
   void _saveEloScore() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt('elo_score', _eloScore);
   }
+
+
   /// --------------------------------------------------------------------------
   /// Button Functions
   /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -124,7 +156,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void _appendToInput(String number) {
     setState(() {
       _currentInput += number;
-      _currentRiddleDisplay = _riddle;
     });
   }
 
@@ -133,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_currentInput.isNotEmpty) {
       setState(() {
         _currentInput = _currentInput.substring(0, _currentInput.length - 1);
-        _currentRiddleDisplay = _riddle;
       });
     }
   }
@@ -142,26 +172,35 @@ class _MyHomePageState extends State<MyHomePage> {
   void _clearInput() {
     setState(() {
       _currentInput = "";
-      _currentRiddleDisplay = _riddle;
     });
   }
 
-  // Generates a new riddle.
   void _generateRiddle() {
-    final RiddleResult result = riddleGenerator.generateRiddle(
-        isShorthandMode: _changeRiddleText);
+    final RiddleResult result = riddleGenerator.generateRiddle();
+
     _randomNumber = result.number;
-    _riddle = result.riddle;
+
+    List<String> parts = result.riddleShort.split('\n');
+    if (parts.length > 1) {
+      parts[parts.length - 2] = parts[parts.length - 2] + parts[parts.length - 1];
+      parts.removeLast();
+    }
+    _riddleShort = parts.join('\n');
+
+    _riddleNormal = result.riddleNormal;
+
+    _setRiddleMode();
 
     print(_randomNumber);
-    print(_riddle);
 
-    _currentRiddleDisplay = '';
     // Start typing out animation.
     _typeOutRiddle();
 
     setState(() {});
   }
+
+
+
 
   // Checks the user's answer against the correct answer, updates the ELO score, and provides feedback.
   void _checkAnswer() {
@@ -169,6 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _flashBackground(Colors.green);
       _eloScore += 15;
       _generateRiddle();
+      _currentRiddleDisplay = '';
       _wrongGuesses.clear();
       _lastExpression.clear();
       _saveEloScore(); // Clear the list of wrong guesses upon correct answer.
@@ -187,6 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _skipRiddle() {
     _eloScore -= 10;
     _generateRiddle();
+    _currentRiddleDisplay = '';
     _wrongGuesses.clear();
     _lastExpression.clear();
     _saveEloScore(); // Clear the list of wrong guesses when skipping the riddle.
@@ -358,7 +399,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _currentInput = result.toString();
       });
     } catch (e) {
-      print("Error evaluating expression: $e");
+      //print("Error evaluating expression: $e");
       setState(() {
         _currentInput = "Invalid Expression";
       });
@@ -586,10 +627,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 onDigitsChanged: _updateDigitsValue,
                                                 onFontSizeChanged: _updateFontSize,
                                                 onAnimationSpeedChanged: _updateAnimationSpeed,
-                                                onChangeRiddleTextSetting: (bool value) {
-                                                  setState(() {
-                                                    _changeRiddleText = value;
-                                                  });
+                                                onChangeRiddleTextSetting: (value) {
+                                                  _updateRiddleText(value);
+                                                  _changeRiddleMode(); // Set the appropriate riddle mode
+                                                  setState(() {});
+                                                },
+                                                onRiddleTextModeChanged: () { // The new callback
+                                                  _changeRiddleMode();
+                                                  setState(() {});
                                                 },
                                               ),
                                             ),
@@ -598,7 +643,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       else
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10.0), // Add padding to both left and right
+                                            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                                             child: SingleChildScrollView(
                                               reverse: true, // Makes the content start from the bottom
                                               scrollDirection: Axis.vertical,

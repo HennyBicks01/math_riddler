@@ -307,7 +307,6 @@ class RiddleConditionChecker {
       if (num % i == 0 || num % (i + 2) == 0) return false;
       i += 6;
     }
-
     return true;
   }
 
