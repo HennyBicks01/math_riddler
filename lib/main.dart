@@ -201,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
-        _backgroundColor = Colors.white;
+        _backgroundColor = const Color (0xFFe5e9e3);
       });
     });
   }
@@ -497,9 +497,9 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Text(
             symbol,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               color: textColor,
-              fontFamily: 'TI84Font',
+              fontFamily: 'Sand',
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -561,7 +561,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                         ),
                                       ),
-
 
                                       // Menu Icon (Settings) with padding adjusted
                                       Padding(
@@ -642,8 +641,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                             ),
-
-
 
                             // Keypad
                             Expanded(
