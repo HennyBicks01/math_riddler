@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/services.dart';
+import 'operations.dart';
 
 import 'package:mathriddles/riddle_generator.dart';
 import 'settings.dart';
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int? currentNumber;
   List<String>? currentConditions;
   bool isShorthandMode = false;
-
+  late Operations operations;
 
   final riddleGenerator = RiddleGenerator();
 
@@ -76,8 +76,23 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadSettings(); // <-- Load your settings from SharedPreferences
     _generateRiddle();
-  }
 
+    // Initialize operations here
+    operations = Operations(
+        getCurrentInput: () => _currentInput, // Get the current input
+        updateCurrentInput: (input) {
+          setState(() {
+            _currentInput += input;
+          });
+        },
+        addLastExpression: (expression) {
+          setState(() {
+            _currentInput = '';
+            _lastExpression.add(expression);
+          });
+        }
+    );
+  }
   /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   /// Settings Page functions and Preferences
   /// --------------------------------------------------------------------------
@@ -91,7 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _animationSpeed = prefs.getDouble('animation_speed') ?? 3;
     });
   }
-
 
   // Updates the font size for riddle display
   void _updateFontSize(double newSize) {
@@ -177,30 +191,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _generateRiddle() {
     final RiddleResult result = riddleGenerator.generateRiddle();
-
     _randomNumber = result.number;
-
     List<String> parts = result.riddleShort.split('\n');
     if (parts.length > 1) {
       parts[parts.length - 2] = parts[parts.length - 2] + parts[parts.length - 1];
       parts.removeLast();
     }
     _riddleShort = parts.join('\n');
-
     _riddleNormal = result.riddleNormal;
-
     _setRiddleMode();
-
     print(_randomNumber);
-
-    // Start typing out animation.
     _typeOutRiddle();
-
     setState(() {});
   }
-
-
-
 
   // Checks the user's answer against the correct answer, updates the ELO score, and provides feedback.
   void _checkAnswer() {
@@ -267,147 +270,11 @@ class _MyHomePageState extends State<MyHomePage> {
       _isRiddleBeingDisplayed = false;
     }
   }
-  /// **************************************************************************
-  ///  Operations
-  /// --------------------------------------------------------------------------
-  // Handles the operations performed by the user, including special functions
-  void _performOperation(String operation) {
-    // Check for special operations. If found, evaluate immediately
-    switch (operation) {
-      case 'Prm':
-        _evaluateIsPrime();
-        return;
-      case 'Len':
-        _evaluateLength();
-        return;
-      case 'Fib':
-        _evaluateIsFibonacci();
-        return;
-      case 'Sum':
-        _evaluateSumOfDigits();
-        return;
-      case 'Prod':
-        _evaluateProductOfDigits();
-        return;
-      default:
-        setState(() {
-          _currentInput += operation;
-        });
-    }
-  }
 
-  // Evaluates and checks if the current input number is a prime number.
-  void _evaluateIsPrime() {
-    int? num = int.tryParse(_currentInput);
-    if (num == null) {
-      setState(() {
-        _currentInput = "Invalid Number";
-      });
-      return;
-    }
-    bool prime = _isPrime(num);
-    setState(() {
-      _lastExpression.add('isPrime($_currentInput) = $prime');
-      _currentInput = '';
-    });
-  }
-
-  // Evaluates the length of the current input.
-  void _evaluateLength() {
-    setState(() {
-      _lastExpression.add('length($_currentInput) = ${_currentInput.length}');
-      _currentInput = _currentInput.length.toString();
-    });
-  }
-
-  // Evaluates and checks if the current input number is part of the Fibonacci sequence.
-  void _evaluateIsFibonacci() {
-    int? num = int.tryParse(_currentInput);
-    if (num == null) {
-      setState(() {
-        _currentInput = "Invalid Number";
-      });
-      return;
-    }
-    bool fib = _isFibonacci(num);
-    setState(() {
-      _lastExpression.add('isFibonacci($_currentInput) = $fib');
-      _currentInput = '';
-    });
-  }
-
-  // Takes the sum of all of the inputted numbers
-  void _evaluateSumOfDigits() {
-    int sum = 0;
-    for (var digit in _currentInput.split('')) {
-      int? num = int.tryParse(digit);
-      if (num != null) sum += num;
-    }
-
-    setState(() {
-      _lastExpression.add('sum($_currentInput) = $sum');
-      _currentInput = sum.toString();
-    });
-  }
-
-  // Takes the product of all of the inputted numbers
-  void _evaluateProductOfDigits() {
-    int product = 1;
-    for (var digit in _currentInput.split('')) {
-      int? num = int.tryParse(digit);
-      if (num != null) product *= num;
-    }
-
-    setState(() {
-      _lastExpression.add('product($_currentInput) = $product');
-      _currentInput = product.toString();
-    });
-  }
-
-  // Utility function to check if a given number is prime.
-  bool _isPrime(int num) {
-    if (num < 2) return false;
-    for (int i = 2; i * i <= num; i++) {
-      if (num % i == 0) return false;
-    }
-    return true;
-  }
-
-  // Utility function to check if a given number belongs to the Fibonacci sequence.
-  bool _isFibonacci(int n) {
-    int a = 0, b = 1, c = a + b;
-    while (c <= n) {
-      if (c == n) return true;
-      a = b;
-      b = c;
-      c = a + b;
-    }
-    return false;
-  }
-
-  // Parses and evaluates mathematical expressions entered by the user.
-  void _evaluateExpression() {
-    String expression = _currentInput;
-    expression = expression.replaceAll('x', '*');
-    final parser = Parser();
-    double result;
-    try {
-      Expression exp = parser.parse(expression);
-      result = exp.evaluate(EvaluationType.REAL, ContextModel());
-      setState(() {
-        _lastExpression.add('$_currentInput = ${result.toString()}');
-        _currentInput = result.toString();
-      });
-    } catch (e) {
-      //print("Error evaluating expression: $e");
-      setState(() {
-        _currentInput = "Invalid Expression";
-      });
-    }
-  }
   /// --------------------------------------------------------------------------
   /// Main Page Build methods
   /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   //Main Page
   @override
   Widget build(BuildContext context) {
@@ -423,7 +290,6 @@ class _MyHomePageState extends State<MyHomePage> {
       Color buttonColor = Colors.white; // Default color
       Color textColor = Colors.black; // Default text color
 
-
       // Mapping of indexes to their respective symbols or actions
       List<String> symbols = _showOperators ? expressionSymbols : [
         '1', '2', '3', '>',
@@ -435,32 +301,15 @@ class _MyHomePageState extends State<MyHomePage> {
       if (index >= symbols.length) {
         return Container();
       }
-
       String symbol = symbols[index];
 
       switch (symbol) {
-        case '>':
-          buttonColor = Colors.green;
-          textColor = Colors.white;
-          break;
-        case '=':
-          buttonColor = Colors.blue;
-          textColor = Colors.white;
-          break;
-        case 'Ops':
-          buttonColor = Colors.purple;
-          textColor = Colors.white;
-          break;
-        case '<':
-          buttonColor = Colors.orange;
-          break;
-        case 'C':
-          buttonColor = Colors.orange;
-          break;
-        case '>>':
-          buttonColor = Colors.red;
-          textColor = Colors.white;
-          break;
+        case '>': buttonColor = Colors.green; textColor = Colors.white; break;
+        case '=':buttonColor = Colors.blue; textColor = Colors.white; break;
+        case 'Ops':buttonColor = Colors.purple; textColor = Colors.white; break;
+        case '<':buttonColor = Colors.orange; break;
+        case 'C':buttonColor = Colors.orange; break;
+        case '>>':buttonColor = Colors.red; textColor = Colors.white; break;
         case '+':
         case '-':
         case 'x':
@@ -473,8 +322,6 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'Prod':
         case '.':
           buttonColor = Colors.purple[200]!;
-
-
       }
 
       return ElevatedButton(
@@ -516,10 +363,10 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 _showOperators = false; // Reset the _showOperators to false
               });
-              _performOperation(symbol);
+              operations.performOperation(symbol);
               break;
             case '=':
-              _evaluateExpression();
+              operations.evaluateExpression();
               break;
             default:
               _appendToInput(symbol);
