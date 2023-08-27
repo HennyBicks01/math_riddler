@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:math_expressions/math_expressions.dart';
-
+import 'package:flutter/services.dart';
 
 import 'package:mathriddles/riddle_generator.dart';
 import 'settings.dart';
@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
     '^','Prm','Len','Fib',
     'Sum','Prod','.','Ops'];
   bool _showOperators = false;
+  bool _isSettingsOpen = false;
 
 
   final riddleGenerator = RiddleGenerator();
@@ -83,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _fontSize = prefs.getDouble('font_size') ??
           20;
       _changeRiddleText = prefs.getBool('change_riddle_text') ??
-          true;
+          false;
       _eloScore = prefs.getInt('elo_score') ??
           1200; // Use a default value of 1200 if not found
       _animationSpeed = prefs.getDouble('animation_speed') ??
@@ -108,8 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Updates the minimum and maximum digits for the riddle generator.
   void _updateDigitsValue(int newValue) {
     riddleGenerator.minDigits = newValue;
-    riddleGenerator.maxDigits =
-        newValue; // If you want to set both the min and max to the same value.
+    riddleGenerator.maxDigits = newValue; // If you want to set both the min and max to the same value.
   }
 
   // Saves Elo
@@ -170,6 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _eloScore += 15;
       _generateRiddle();
       _wrongGuesses.clear();
+      _lastExpression.clear();
       _saveEloScore(); // Clear the list of wrong guesses upon correct answer.
     } else {
       _flashBackground(Colors.red);
@@ -436,7 +437,10 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       return ElevatedButton(
-        onPressed: _isRiddleBeingDisplayed ? null : () {
+        onPressed: () {
+          HapticFeedback.lightImpact(); // This triggers the haptic feedback
+
+          if (_isRiddleBeingDisplayed) return;
           switch (symbol) {
             case '>':
               _checkAnswer();
@@ -523,7 +527,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Container(
                                   width: screenWidth * 0.85,
                                   height: screenHeight * 0.53,
-                                  padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 8.0),
                                   decoration: BoxDecoration(
                                       color: const Color(0xFFA8B6A0),
                                       borderRadius: BorderRadius.circular(15),
@@ -547,82 +550,93 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children: [
 
                                       // Elo Score with no border and smaller font
-                                      Text(
-                                        'Elo: $_eloScore',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.black,
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 20.0),
+                                        child: Text(
+                                          'Elo: $_eloScore',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.normal,
+                                            color: Colors.black,
+                                          ),
                                         ),
                                       ),
+
 
                                       // Menu Icon (Settings) with padding adjusted
                                       Padding(
                                         padding: const EdgeInsets.only(left: 20.0),
                                         child: IconButton(
-                                          onPressed: () async {
-                                            await Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SettingsPage(
-                                                      onDigitsChanged: _updateDigitsValue,
-                                                      onFontSizeChanged: _updateFontSize,
-                                                      onAnimationSpeedChanged: _updateAnimationSpeed,
-                                                      onChangeRiddleTextSetting: (
-                                                          bool value) {
-                                                        setState(() {
-                                                          _changeRiddleText = value;
-                                                        });
-                                                      },
-                                                    ),
-                                              ),
-                                            );
-                                            _loadSettings();
+                                          onPressed: () {
+                                            setState(() {
+                                              _isSettingsOpen = !_isSettingsOpen;
+                                            });
                                           },
-                                          icon: const Icon(
-                                              Icons.menu, color: CupertinoColors.black),
+                                          icon: const Icon(Icons.menu, color: CupertinoColors.black),
                                         ),
                                       ),
+                                    ],
+                                  ),
 
-                                        ],
-                                      ),
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          reverse: true, // Makes the content start from the bottom
-                                          scrollDirection: Axis.vertical,
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                _currentRiddleDisplay,
-                                                style: TextStyle(fontSize: _fontSize),
-                                                textAlign: TextAlign.right,
+                                      if (_isSettingsOpen)
+                                        Flexible(
+                                          child: SizedBox(
+                                            height: screenHeight * 0.5, // or whatever fraction you find suitable
+                                            child: SingleChildScrollView(
+                                              child: SettingsPage(
+                                                onDigitsChanged: _updateDigitsValue,
+                                                onFontSizeChanged: _updateFontSize,
+                                                onAnimationSpeedChanged: _updateAnimationSpeed,
+                                                onChangeRiddleTextSetting: (bool value) {
+                                                  setState(() {
+                                                    _changeRiddleText = value;
+                                                  });
+                                                },
                                               ),
-                                              ..._wrongGuesses.map((wrongGuess) =>
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10.0), // Add padding to both left and right
+                                            child: SingleChildScrollView(
+                                              reverse: true, // Makes the content start from the bottom
+                                              scrollDirection: Axis.vertical,
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
                                                   Text(
-                                                    wrongGuess,
-                                                    style: TextStyle(fontSize: _fontSize, color: Colors.red),
+                                                    _currentRiddleDisplay,
+                                                    style: TextStyle(fontSize: _fontSize),
                                                     textAlign: TextAlign.right,
-                                                  )
-                                              ).toList(),
-                                              // Display the expressions from the history:
-                                              ..._lastExpression.map((expression) =>
+                                                  ),
+                                                  ..._wrongGuesses.map((wrongGuess) =>
+                                                      Text(
+                                                        wrongGuess,
+                                                        style: TextStyle(fontSize: _fontSize, color: Colors.red),
+                                                        textAlign: TextAlign.right,
+                                                      )
+                                                  ).toList(),
+                                                  // Display the expressions from the history:
+                                                  ..._lastExpression.map((expression) =>
+                                                      Text(
+                                                        expression,
+                                                        style: TextStyle(fontSize: _fontSize, color: Colors.grey[700]),
+                                                        textAlign: TextAlign.right,
+                                                      )
+                                                  ).toList(),
                                                   Text(
-                                                    expression,
-                                                    style: TextStyle(fontSize: _fontSize, color: Colors.grey[700]),
+                                                    _currentInput,
+                                                    style: TextStyle(fontSize: _fontSize),
                                                     textAlign: TextAlign.right,
-                                                  )
-                                              ).toList(),
-                                              Text(
-                                                _currentInput,
-                                                style: TextStyle(fontSize: _fontSize),
-                                                textAlign: TextAlign.right,
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                 ),
