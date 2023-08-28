@@ -6,7 +6,7 @@ import 'operations.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'sign-in.dart';
+import 'sign_in.dart';
 import 'package:mathriddles/riddle_generator.dart';
 import 'settings.dart';
 import 'firebase_options.dart';
@@ -18,11 +18,13 @@ void main() async {
 }
 
 class GoogleSignInModal extends StatefulWidget {
+  const GoogleSignInModal({Key? key}) : super(key: key);
+
   @override
-  _GoogleSignInModalState createState() => _GoogleSignInModalState();
+  GoogleSignInModalState createState() => GoogleSignInModalState();
 }
 
-class _GoogleSignInModalState extends State<GoogleSignInModal> {
+class GoogleSignInModalState extends State<GoogleSignInModal> {
   final GoogleSignInProvider _signInProvider = GoogleSignInProvider();
 
   @override
@@ -124,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showTopModalSheet(context, GoogleSignInModal());
+      showTopModalSheet(context, const GoogleSignInModal());
     });
 
     _loadSettings(); // <-- Load your settings from SharedPreferences

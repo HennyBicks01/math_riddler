@@ -3,7 +3,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  // Initialize with the clientId
+  final GoogleSignIn _googleSignIn = GoogleSignIn(clientId: "706843254905-ckemrub4pk0r1ts5lpqp45mo7qd5vd99.apps.googleusercontent.com");
 
   Future<User?> signInWithGoogle() async {
     try {
@@ -17,9 +19,8 @@ class GoogleSignInProvider {
         final UserCredential authResult = await _auth.signInWithCredential(credential);
         final User? user = authResult.user;
         return user;
-      } else {
-        return null; // Added return statement here
       }
+      return null; // Ensure all code paths return a value
     } catch (error) {
       print(error);
       return null;
