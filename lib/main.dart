@@ -30,7 +30,7 @@ class GoogleSignInModalState extends State<GoogleSignInModal> {
   @override
   Widget build(BuildContext context) {
     return SizedBox( // Remove the const keyword here
-      height: 800,
+      height: 100,
       child: Center(
         child: ElevatedButton(
           child: const Row(
