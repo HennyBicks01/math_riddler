@@ -15,6 +15,11 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^5.1.0
   math_expressions: ^2.4.0
+  top_modal_sheet: ^2.0.0
+  firebase_auth: ^4.8.0
+  firebase_core: ^2.15.0
+  google_sign_in: ^6.1.4
+  firebase_core_web: ^2.7.0
 
 dev_dependencies:
   flutter_test:
@@ -36,6 +41,8 @@ flutter:
     - family: Sand
       fonts:
         - asset: fonts/Quicksand-Medium.ttf
+  assets:
+    - assets/google_logo.png
 
   # If you have other flutter configurations like assets, they go here.
   # For example:

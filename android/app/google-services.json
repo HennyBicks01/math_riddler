@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "706843254905",
+    "project_id": "math-riddler",
+    "storage_bucket": "math-riddler.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706843254905:android:d259df70a145e1ad1db4a8",
+        "android_client_info": {
+          "package_name": "com.example.mathriddles"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "706843254905-ckemrub4pk0r1ts5lpqp45mo7qd5vd99.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRqyiIjdbsFcWJCRhbCYo3KnLQ-H6FEsA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "706843254905-ckemrub4pk0r1ts5lpqp45mo7qd5vd99.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,12 +3,59 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'operations.dart';
-
+import 'package:top_modal_sheet/top_modal_sheet.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'sign-in.dart';
 import 'package:mathriddles/riddle_generator.dart';
 import 'settings.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
+}
+
+class GoogleSignInModal extends StatefulWidget {
+  @override
+  _GoogleSignInModalState createState() => _GoogleSignInModalState();
+}
+
+class _GoogleSignInModalState extends State<GoogleSignInModal> {
+  final GoogleSignInProvider _signInProvider = GoogleSignInProvider();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox( // Remove the const keyword here
+      height: 800,
+      child: Center(
+        child: ElevatedButton(
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image(
+                image: AssetImage("assets/google_logo.png"),
+                height: 18.0,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text('Sign in'),
+              )
+            ],
+          ),
+          onPressed: () async {
+            User? user = await _signInProvider.signInWithGoogle();
+            if (user != null) {
+              print("Successfully signed in with Google: ${user.displayName}");
+            } else {
+              print("Failed to sign in with Google");
+            }
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -71,9 +118,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final riddleGenerator = RiddleGenerator();
 
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showTopModalSheet(context, GoogleSignInModal());
+    });
+
     _loadSettings(); // <-- Load your settings from SharedPreferences
     _generateRiddle();
 
@@ -93,6 +146,17 @@ class _MyHomePageState extends State<MyHomePage> {
         }
     );
   }
+
+  ///***************************************************************************
+  /// Sign in
+  /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  void main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    runApp(const MyApp());
+  }
+
   /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   /// Settings Page functions and Preferences
   /// --------------------------------------------------------------------------
@@ -274,6 +338,8 @@ class _MyHomePageState extends State<MyHomePage> {
   /// --------------------------------------------------------------------------
   /// Main Page Build methods
   /// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 
   //Main Page
   @override
@@ -527,5 +593,6 @@ class _MyHomePageState extends State<MyHomePage> {
           )
       );
     }
+
   }
 
