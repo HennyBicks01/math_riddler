@@ -11,7 +11,6 @@ class Operations {
     required this.addLastExpression
   });
 
-
   // Handles the operations performed by the user, including special functions
   void performOperation(String operation) {
     // Check for special operations. If found, evaluate immediately
@@ -48,14 +47,14 @@ class Operations {
   }
 
   void evaluateLength() {
-    int length = updateCurrentInput('').length; // directly use the callback
-    addLastExpression('length($length) = $length');
+    String current = getCurrentInput();
+    int length = current.length;
+    addLastExpression('length($current) = $length');
     updateCurrentInput(length.toString());
   }
 
   void evaluateIsFibonacci() {
-    int? num = int.tryParse(
-        updateCurrentInput('')); // directly use the callback
+    int? num = int.tryParse(getCurrentInput());
     if (num == null) {
       updateCurrentInput("Invalid Number");
       return;
@@ -67,7 +66,7 @@ class Operations {
 
   void evaluateSumOfDigits() {
     int sum = 0;
-    String current = updateCurrentInput('');
+    String current = getCurrentInput();
     for (var digit in current.split('')) {
       int? num = int.tryParse(digit);
       if (num != null) sum += num;
@@ -78,7 +77,7 @@ class Operations {
 
   void evaluateProductOfDigits() {
     int product = 1;
-    String current = updateCurrentInput('');
+    String current = getCurrentInput();
     for (var digit in current.split('')) {
       int? num = int.tryParse(digit);
       if (num != null) product *= num;
@@ -131,5 +130,4 @@ class Operations {
       updateCurrentInput("Invalid Expression");
     }
   }
-
 }
